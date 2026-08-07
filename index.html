@@ -71,6 +71,10 @@
     button:hover {
       background-color: #1d4ed8;
     }
+    button:disabled {
+      background-color: #94a3b8;
+      cursor: not-allowed;
+    }
     .divider {
       border: none;
       border-top: 1px solid #e2e8f0;
@@ -90,14 +94,6 @@
       background: #fafafa;
       margin-bottom: 6px;
       border-radius: 6px;
-    }
-    .delete-btn {
-      background-color: #ef4444;
-      padding: 6px 10px;
-      font-size: 0.85rem;
-    }
-    .delete-btn:hover {
-      background-color: #dc2626;
     }
     .empty-msg {
       text-align: center;
@@ -123,7 +119,7 @@
     <label for="bookTitle">新增書籍</label>
     <div class="input-group">
       <input type="text" id="bookTitle" placeholder="輸入書名（按下 Enter 或點擊新增）">
-      <button onclick="addBook()">新增</button>
+      <button id="addBtn" onclick="addBook()">新增</button>
     </div>
   </div>
 
@@ -132,7 +128,7 @@
   <!-- 搜尋區塊 -->
   <div class="section">
     <label for="searchInput">關鍵字搜尋 <span id="countBadge" class="badge"></span></label>
-    <input type="text" id="searchInput" placeholder="輸入關鍵字即時篩選..." oninput="renderBooks()">
+    <input type="text" id="searchInput" placeholder="輸入關鍵字即時篩選..." oninput="filterBooks()">
   </div>
 
   <!-- 書單列表 -->
@@ -140,95 +136,39 @@
 </div>
 
 <script>
-  // 初始預設範例資料（若使用者本地無紀錄時會自動載入）
-  const defaultBooks = [
-    "被討厭的勇氣",
-    "原子習慣",
-    "富爸爸，窮爸爸",
-    "思考的藝術",
-    "深度學習入門"
-  ];
+  // 1. Cloudflare Worker API 網址
+  const API_URL = "https://misty-river-c4e2.errmartin3.workers.dev";
+  
+  // 快取目前的書籍清單，方便前端搜尋過濾
+  let allBooksCache = [];
 
-  // 1. 讀取本地資料
-  // 替換為你的 Cloudflare Worker 網址
-const API_URL = "https://misty-river-c4e2.errmartin3.workers.dev";
+  // 2. 從 GitHub (經由 Worker API) 載入書籍清單
+  async function fetchBooks() {
+    const listElement = document.getElementById('bookList');
+    listElement.innerHTML = '<div class="empty-msg">讀取 GitHub 資料中...</div>';
 
-// 1. 從 GitHub (經由 Worker) 讀取最新書籍清單
-async function getBooks() {
-  try {
-    const res = await fetch(API_URL);
-    return await res.json();
-  } catch (err) {
-    console.error("無法取得資料:", err);
-    return [];
-  }
-}
-
-// 2. 寫入新書名並自動 Commit 到 GitHub
-async function addBook() {
-  const input = document.getElementById('bookTitle');
-  const title = input.value.trim();
-  if (!title) return alert('請輸入書名！');
-
-  try {
-    const res = await fetch(API_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title: title })
-    });
-
-    if (res.ok) {
-      alert('已成功存入 GitHub data.json！');
-      input.value = '';
-      renderBooks(); // 重新整理顯示
-    } else {
-      alert('寫入失敗，請檢查 API 設定');
+    try {
+      const res = await fetch(API_URL);
+      if (!res.ok) throw new Error('API 讀取失敗');
+      
+      allBooksCache = await res.json();
+      filterBooks(); // 渲染清單
+    } catch (err) {
+      console.error("無法取得資料:", err);
+      listElement.innerHTML = '<div class="empty-msg" style="color:#ef4444;">讀取資料失敗，請檢查 Cloudflare / GitHub 設定</div>';
     }
-  } catch (err) {
-    console.error("寫入錯誤:", err);
-  }
-}
-
-  // 2. 儲存資料至 localStorage
-  function saveBooks(books) {
-    localStorage.setItem('user_books', JSON.stringify(books));
   }
 
-  // 3. 新增書籍
-  /*
-  function addBook() {
-    const input = document.getElementById('bookTitle');
-    const title = input.value.trim();
-    if (!title) return alert('請輸入書名！');
-
-    const books = getBooks();
-    books.unshift(title); // 最新新增的放在最上面
-    saveBooks(books);
-
-    input.value = '';
-    renderBooks();
-  }
-  */
-
-  // 4. 刪除書籍
-  function deleteBook(targetTitle) {
-    let books = getBooks();
-    books = books.filter(b => b !== targetTitle);
-    saveBooks(books);
-    renderBooks();
-  }
-
-  // 5. 即時過濾與渲染列表
-  function renderBooks() {
+  // 3. 關鍵字搜尋與渲染畫面
+  function filterBooks() {
     const keyword = document.getElementById('searchInput').value.toLowerCase().trim();
-    const allBooks = getBooks();
     const listElement = document.getElementById('bookList');
     const countBadge = document.getElementById('countBadge');
 
-    // 關鍵字篩選 (不分大小寫)
-    const filtered = allBooks.filter(book => book.toLowerCase().includes(keyword));
+    // 比對關鍵字
+    const filtered = allBooksCache.filter(book => book.toLowerCase().includes(keyword));
 
-    countBadge.textContent = `(顯示 ${filtered.length} / 共 ${allBooks.length} 本)`;
+    countBadge.textContent = `(顯示 ${filtered.length} / 共 ${allBooksCache.length} 本)`;
     listElement.innerHTML = '';
 
     if (filtered.length === 0) {
@@ -239,32 +179,59 @@ async function addBook() {
     filtered.forEach(title => {
       const li = document.createElement('li');
       li.className = 'book-item';
-      li.innerHTML = `
-        <span>${escapeHtml(title)}</span>
-        <button class="delete-btn" onclick="deleteBook('${escapeJsString(title)}')">刪除</button>
-      `;
+      li.innerHTML = `<span>${escapeHtml(title)}</span>`;
       listElement.appendChild(li);
     });
   }
 
-  // 安全防護：避免 HTML/JS 注入字元出錯
+  // 4. 新增書名並儲存至 GitHub data.json
+  async function addBook() {
+    const input = document.getElementById('bookTitle');
+    const btn = document.getElementById('addBtn');
+    const title = input.value.trim();
+
+    if (!title) return alert('請輸入書名！');
+
+    // 防止重複點擊
+    btn.disabled = true;
+    btn.textContent = '儲存中...';
+
+    try {
+      const res = await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: title })
+      });
+
+      if (res.ok) {
+        input.value = '';
+        await fetchBooks(); // 重新向 GitHub 抓取最新列表
+      } else {
+        alert('寫入失敗，請確認 Cloudflare Worker 環境變數設定！');
+      }
+    } catch (err) {
+      console.error("寫入錯誤:", err);
+      alert('連線失敗！');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = '新增';
+    }
+  }
+
+  // 安全防護：避免 HTML 注入
   function escapeHtml(text) {
     return text.replace(/[&<>"']/g, function(m) {
       return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m];
     });
   }
 
-  function escapeJsString(str) {
-    return str.replace(/'/g, "\\'").replace(/"/g, '\\"');
-  }
-
-  // 支援鍵盤 Enter 鍵快速新增
+  // 支援 Enter 鍵快捷新增
   document.getElementById('bookTitle').addEventListener('keypress', function(e) {
     if (e.key === 'Enter') addBook();
   });
 
-  // 頁面初次載入執行
-  renderBooks();
+  // 初次打開網頁時向 GitHub 抓取資料
+  fetchBooks();
 </script>
 
 </body>
