@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>書籍關鍵字搜尋系統</title>
+  <title>圖書搜尋系統</title>
   <style>
     * {
       box-sizing: border-box;
@@ -95,6 +95,26 @@
       margin-bottom: 6px;
       border-radius: 6px;
     }
+    .action-btns {
+      display: flex;
+      gap: 6px;
+    }
+    .edit-btn {
+      background-color: #f59e0b;
+      padding: 6px 10px;
+      font-size: 0.85rem;
+    }
+    .edit-btn:hover {
+      background-color: #d97706;
+    }
+    .delete-btn {
+      background-color: #ef4444;
+      padding: 6px 10px;
+      font-size: 0.85rem;
+    }
+    .delete-btn:hover {
+      background-color: #dc2626;
+    }
     .empty-msg {
       text-align: center;
       color: #94a3b8;
@@ -136,13 +156,10 @@
 </div>
 
 <script>
-  // 1. Cloudflare Worker API 網址
-  const API_URL = "https://github-books-api.errmartin3.workers.dev";
-  
-  // 快取目前的書籍清單，方便前端搜尋過濾
+  const API_URL = "https://misty-river-c4e2.errmartin3.workers.dev";
   let allBooksCache = [];
 
-  // 2. 從 GitHub (經由 Worker API) 載入書籍清單
+  // 1. 載入書籍清單
   async function fetchBooks() {
     const listElement = document.getElementById('bookList');
     listElement.innerHTML = '<div class="empty-msg">讀取 GitHub 資料中...</div>';
@@ -152,20 +169,19 @@
       if (!res.ok) throw new Error('API 讀取失敗');
       
       allBooksCache = await res.json();
-      filterBooks(); // 渲染清單
+      filterBooks();
     } catch (err) {
       console.error("無法取得資料:", err);
-      listElement.innerHTML = '<div class="empty-msg" style="color:#ef4444;">讀取資料失敗，請檢查 Cloudflare / GitHub 設定</div>';
+      listElement.innerHTML = '<div class="empty-msg" style="color:#ef4444;">讀取資料失敗，請檢查 API 設定</div>';
     }
   }
 
-  // 3. 關鍵字搜尋與渲染畫面
+  // 2. 渲染列表與搜尋過濾
   function filterBooks() {
     const keyword = document.getElementById('searchInput').value.toLowerCase().trim();
     const listElement = document.getElementById('bookList');
     const countBadge = document.getElementById('countBadge');
 
-    // 比對關鍵字
     const filtered = allBooksCache.filter(book => book.toLowerCase().includes(keyword));
 
     countBadge.textContent = `(顯示 ${filtered.length} / 共 ${allBooksCache.length} 本)`;
@@ -179,12 +195,18 @@
     filtered.forEach(title => {
       const li = document.createElement('li');
       li.className = 'book-item';
-      li.innerHTML = `<span>${escapeHtml(title)}</span>`;
+      li.innerHTML = `
+        <span>${escapeHtml(title)}</span>
+        <div class="action-btns">
+          <button class="edit-btn" onclick="editBook('${escapeJsString(title)}')">修改</button>
+          <button class="delete-btn" onclick="deleteBook('${escapeJsString(title)}')">刪除</button>
+        </div>
+      `;
       listElement.appendChild(li);
     });
   }
 
-  // 4. 新增書名並儲存至 GitHub data.json
+  // 3. 新增書籍
   async function addBook() {
     const input = document.getElementById('bookTitle');
     const btn = document.getElementById('addBtn');
@@ -192,7 +214,6 @@
 
     if (!title) return alert('請輸入書名！');
 
-    // 防止重複點擊
     btn.disabled = true;
     btn.textContent = '儲存中...';
 
@@ -200,17 +221,17 @@
       const res = await fetch(API_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title: title })
+        body: JSON.stringify({ title })
       });
 
       if (res.ok) {
         input.value = '';
-        await fetchBooks(); // 重新向 GitHub 抓取最新列表
+        await fetchBooks();
       } else {
-        alert('寫入失敗，請確認 Cloudflare Worker 環境變數設定！');
+        alert('新增失敗！');
       }
     } catch (err) {
-      console.error("寫入錯誤:", err);
+      console.error("新增錯誤:", err);
       alert('連線失敗！');
     } finally {
       btn.disabled = false;
@@ -218,19 +239,65 @@
     }
   }
 
-  // 安全防護：避免 HTML 注入
+  // 4. 修改書籍
+  async function editBook(oldTitle) {
+    const newTitle = prompt('請輸入新的書名：', oldTitle);
+    if (!newTitle || newTitle.trim() === '' || newTitle === oldTitle) return;
+
+    try {
+      const res = await fetch(API_URL, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ oldTitle, newTitle: newTitle.trim() })
+      });
+
+      if (res.ok) {
+        await fetchBooks();
+      } else {
+        alert('修改失敗！');
+      }
+    } catch (err) {
+      console.error("修改錯誤:", err);
+      alert('連線失敗！');
+    }
+  }
+
+  // 5. 刪除書籍
+  async function deleteBook(title) {
+    if (!confirm(`確定要刪除「${title}」這本書嗎？`)) return;
+
+    try {
+      const res = await fetch(API_URL, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title })
+      });
+
+      if (res.ok) {
+        await fetchBooks();
+      } else {
+        alert('刪除失敗！');
+      }
+    } catch (err) {
+      console.error("刪除錯誤:", err);
+      alert('連線失敗！');
+    }
+  }
+
   function escapeHtml(text) {
     return text.replace(/[&<>"']/g, function(m) {
       return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m];
     });
   }
 
-  // 支援 Enter 鍵快捷新增
+  function escapeJsString(str) {
+    return str.replace(/'/g, "\\'").replace(/"/g, '\\"');
+  }
+
   document.getElementById('bookTitle').addEventListener('keypress', function(e) {
     if (e.key === 'Enter') addBook();
   });
 
-  // 初次打開網頁時向 GitHub 抓取資料
   fetchBooks();
 </script>
 
