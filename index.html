@@ -1,7 +1,239 @@
 <!DOCTYPE html>
-<html>
-<head><title>我的測試網222頁</title></head>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>書籍關鍵字搜尋系統</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+    body {
+      background-color: #f1f5f9;
+      margin: 0;
+      padding: 40px 16px;
+      display: flex;
+      justify-content: center;
+    }
+    .container {
+      width: 100%;
+      max-width: 550px;
+      background: #ffffff;
+      padding: 24px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+    h1 {
+      margin: 0 0 20px 0;
+      color: #0f172a;
+      font-size: 1.5rem;
+      text-align: center;
+    }
+    .section {
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 600;
+      color: #334155;
+      font-size: 0.95rem;
+    }
+    .input-group {
+      display: flex;
+      gap: 8px;
+    }
+    input[type="text"] {
+      flex: 1;
+      padding: 10px 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    input[type="text"]:focus {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+    }
+    button {
+      padding: 10px 16px;
+      background-color: #2563eb;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background-color 0.2s;
+    }
+    button:hover {
+      background-color: #1d4ed8;
+    }
+    .divider {
+      border: none;
+      border-top: 1px solid #e2e8f0;
+      margin: 20px 0;
+    }
+    .book-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .book-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px;
+      border-bottom: 1px solid #f1f5f9;
+      background: #fafafa;
+      margin-bottom: 6px;
+      border-radius: 6px;
+    }
+    .delete-btn {
+      background-color: #ef4444;
+      padding: 6px 10px;
+      font-size: 0.85rem;
+    }
+    .delete-btn:hover {
+      background-color: #dc2626;
+    }
+    .empty-msg {
+      text-align: center;
+      color: #94a3b8;
+      padding: 24px;
+      font-size: 0.95rem;
+    }
+    .badge {
+      font-size: 0.85rem;
+      color: #64748b;
+      font-weight: normal;
+      margin-left: 6px;
+    }
+  </style>
+</head>
 <body>
-    <h1>哈囉！這是用 GitHub 做出的小程式網頁！</h1>
+
+<div class="container">
+  <h1>📚 圖書搜尋系統</h1>
+
+  <!-- 新增書名區塊 -->
+  <div class="section">
+    <label for="bookTitle">新增書籍</label>
+    <div class="input-group">
+      <input type="text" id="bookTitle" placeholder="輸入書名（按下 Enter 或點擊新增）">
+      <button onclick="addBook()">新增</button>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- 搜尋區塊 -->
+  <div class="section">
+    <label for="searchInput">關鍵字搜尋 <span id="countBadge" class="badge"></span></label>
+    <input type="text" id="searchInput" placeholder="輸入關鍵字即時篩選..." oninput="renderBooks()">
+  </div>
+
+  <!-- 書單列表 -->
+  <ul id="bookList" class="book-list"></ul>
+</div>
+
+<script>
+  // 初始預設範例資料（若使用者本地無紀錄時會自動載入）
+  const defaultBooks = [
+    "被討厭的勇氣",
+    "原子習慣",
+    "富爸爸，窮爸爸",
+    "思考的藝術",
+    "深度學習入門"
+  ];
+
+  // 1. 讀取本地資料
+  function getBooks() {
+    const saved = localStorage.getItem('user_books');
+    if (!saved) {
+      localStorage.setItem('user_books', JSON.stringify(defaultBooks));
+      return defaultBooks;
+    }
+    return JSON.parse(saved);
+  }
+
+  // 2. 儲存資料至 localStorage
+  function saveBooks(books) {
+    localStorage.setItem('user_books', JSON.stringify(books));
+  }
+
+  // 3. 新增書籍
+  function addBook() {
+    const input = document.getElementById('bookTitle');
+    const title = input.value.trim();
+    if (!title) return alert('請輸入書名！');
+
+    const books = getBooks();
+    books.unshift(title); // 最新新增的放在最上面
+    saveBooks(books);
+
+    input.value = '';
+    renderBooks();
+  }
+
+  // 4. 刪除書籍
+  function deleteBook(targetTitle) {
+    let books = getBooks();
+    books = books.filter(b => b !== targetTitle);
+    saveBooks(books);
+    renderBooks();
+  }
+
+  // 5. 即時過濾與渲染列表
+  function renderBooks() {
+    const keyword = document.getElementById('searchInput').value.toLowerCase().trim();
+    const allBooks = getBooks();
+    const listElement = document.getElementById('bookList');
+    const countBadge = document.getElementById('countBadge');
+
+    // 關鍵字篩選 (不分大小寫)
+    const filtered = allBooks.filter(book => book.toLowerCase().includes(keyword));
+
+    countBadge.textContent = `(顯示 ${filtered.length} / 共 ${allBooks.length} 本)`;
+    listElement.innerHTML = '';
+
+    if (filtered.length === 0) {
+      listElement.innerHTML = '<div class="empty-msg">未找到符合關鍵字的書籍</div>';
+      return;
+    }
+
+    filtered.forEach(title => {
+      const li = document.createElement('li');
+      li.className = 'book-item';
+      li.innerHTML = `
+        <span>${escapeHtml(title)}</span>
+        <button class="delete-btn" onclick="deleteBook('${escapeJsString(title)}')">刪除</button>
+      `;
+      listElement.appendChild(li);
+    });
+  }
+
+  // 安全防護：避免 HTML/JS 注入字元出錯
+  function escapeHtml(text) {
+    return text.replace(/[&<>"']/g, function(m) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m];
+    });
+  }
+
+  function escapeJsString(str) {
+    return str.replace(/'/g, "\\'").replace(/"/g, '\\"');
+  }
+
+  // 支援鍵盤 Enter 鍵快速新增
+  document.getElementById('bookTitle').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') addBook();
+  });
+
+  // 頁面初次載入執行
+  renderBooks();
+</script>
+
 </body>
 </html>
