@@ -74,7 +74,7 @@
       background-color: #1d4ed8;
     }
     button:disabled {
-      background-color: #94a3b8;
+      background-color: #cbd5e1;
       cursor: not-allowed;
     }
     .divider {
@@ -135,6 +135,32 @@
       color: #64748b;
       font-weight: normal;
       margin-left: 6px;
+    }
+
+    /* 分頁元件樣式 */
+    .pagination-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 20px;
+      padding-top: 12px;
+    }
+    .page-btn {
+      background-color: #ffffff;
+      color: #334155;
+      border: 1px solid #cbd5e1;
+      padding: 6px 14px;
+      font-size: 0.9rem;
+    }
+    .page-btn:hover:not(:disabled) {
+      background-color: #f1f5f9;
+      color: #2563eb;
+      border-color: #2563eb;
+    }
+    .page-info {
+      font-size: 0.9rem;
+      color: #64748b;
+      font-weight: 500;
     }
 
     /* 彈出視窗 Modal 樣式 */
@@ -221,7 +247,7 @@
   <!-- 搜尋區塊 -->
   <div class="section">
     <label for="searchInput">關鍵字搜尋 <span id="countBadge" class="badge"></span></label>
-    <input type="text" id="searchInput" placeholder="搜尋書名或出版日期..." oninput="filterBooks()">
+    <input type="text" id="searchInput" placeholder="搜尋書名或出版日期..." oninput="onSearchInput()">
   </div>
 
   <!-- 表格展示區塊 -->
@@ -239,6 +265,13 @@
         <tr><td colspan="4" class="empty-msg">讀取 GitHub 資料中...</td></tr>
       </tbody>
     </table>
+  </div>
+
+  <!-- 分頁控制區塊 -->
+  <div class="pagination-container" id="paginationBox">
+    <button id="prevBtn" class="page-btn" onclick="changePage(-1)">← 上一頁</button>
+    <span id="pageInfo" class="page-info">第 1 / 1 頁</span>
+    <button id="nextBtn" class="page-btn" onclick="changePage(1)">下一頁 →</button>
   </div>
 </div>
 
@@ -269,8 +302,12 @@
 </div>
 
 <script>
-  const API_URL = "https://misty-river-c4e2.errmartin3.workers.dev";
+  const API_URL = "https://github-books-api.errmartin3.workers.dev";
   let allBooksCache = [];
+  
+  // 分頁設定變數
+  let currentPage = 1;
+  const itemsPerPage = 10; // 每頁顯示 10 本
 
   // 1. 載入書籍資料
   async function fetchBooks() {
@@ -294,33 +331,61 @@
         };
       });
 
-      filterBooks();
+      renderTable();
     } catch (err) {
       console.error("無法取得資料:", err);
       tbody.innerHTML = '<tr><td colspan="4" class="empty-msg" style="color:#ef4444;">讀取資料失敗，請檢查 API 設定</td></tr>';
     }
   }
 
-  // 2. 渲染表格與搜尋過濾
-  function filterBooks() {
+  // 2. 搜尋時重設至第一頁
+  function onSearchInput() {
+    currentPage = 1;
+    renderTable();
+  }
+
+  // 3. 切換頁碼
+  function changePage(delta) {
+    currentPage += delta;
+    renderTable();
+  }
+
+  // 4. 渲染表格與處理分頁
+  function renderTable() {
     const keyword = document.getElementById('searchInput').value.toLowerCase().trim();
     const tbody = document.getElementById('bookTableBody');
     const countBadge = document.getElementById('countBadge');
 
+    // 關鍵字篩選
     const filtered = allBooksCache.filter(b => 
       b.title.toLowerCase().includes(keyword) || 
       b.date.toLowerCase().includes(keyword)
     );
 
-    countBadge.textContent = `(顯示 ${filtered.length} / 共 ${allBooksCache.length} 本)`;
+    const totalItems = filtered.length;
+    const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
+
+    // 校正當前頁碼範圍
+    if (currentPage > totalPages) currentPage = totalPages;
+    if (currentPage < 1) currentPage = 1;
+
+    // 切割當頁顯示資料（每頁 10 筆）
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const paginatedBooks = filtered.slice(startIndex, startIndex + itemsPerPage);
+
+    countBadge.textContent = `(顯示 ${totalItems} 本中的第 ${startIndex + 1}-${Math.min(startIndex + itemsPerPage, totalItems)} 本)`;
     tbody.innerHTML = '';
 
-    if (filtered.length === 0) {
+    if (totalItems === 0) {
       tbody.innerHTML = '<tr><td colspan="4" class="empty-msg">未找到符合條件的書籍</td></tr>';
+      document.getElementById('paginationBox').style.display = 'none';
       return;
     }
 
-    filtered.forEach(book => {
+    document.getElementById('paginationBox').style.display = 'flex';
+
+    // 渲染表格內容
+    paginatedBooks.forEach(book => {
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td><strong>${escapeHtml(book.title)}</strong></td>
@@ -335,9 +400,14 @@
       `;
       tbody.appendChild(tr);
     });
+
+    // 更新分頁按鈕狀態
+    document.getElementById('pageInfo').textContent = `第 ${currentPage} / ${totalPages} 頁`;
+    document.getElementById('prevBtn').disabled = (currentPage === 1);
+    document.getElementById('nextBtn').disabled = (currentPage === totalPages);
   }
 
-  // 3. 新增書籍
+  // 5. 新增書籍
   async function addBook() {
     const titleInput = document.getElementById('bookTitle');
     const dateInput = document.getElementById('bookDate');
@@ -364,6 +434,7 @@
         titleInput.value = '';
         dateInput.value = '';
         readsInput.value = '0';
+        currentPage = 1; // 新增後跳回第一頁查看
         await fetchBooks();
       } else {
         alert('新增失敗！');
@@ -377,7 +448,7 @@
     }
   }
 
-  // 4. 開啟 / 關閉修改彈出視窗
+  // 6. 開啟 / 關閉修改彈出視窗
   function openEditModal(title, date, reads) {
     document.getElementById('editOldTitle').value = title;
     document.getElementById('editTitle').value = title;
@@ -391,7 +462,7 @@
     document.getElementById('editModal').classList.remove('active');
   }
 
-  // 5. 儲存修改內容
+  // 7. 儲存修改內容
   async function saveEdit() {
     const oldTitle = document.getElementById('editOldTitle').value;
     const title = document.getElementById('editTitle').value.trim();
@@ -426,7 +497,7 @@
     }
   }
 
-  // 6. 刪除書籍
+  // 8. 刪除書籍
   async function deleteBook(title) {
     if (!confirm(`確定要刪除「${title}」這本書嗎？`)) return;
 
