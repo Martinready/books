@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🎶 詩歌資料庫與賞析系統</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+    body {
+      background-color: #f8fafc;
+      margin: 0;
+      padding: 30px 16px;
+      display: flex;
+      justify-content: center;
+    }
+    .container {
+      width: 100%;
+      max-width: 900px;
+      background: #ffffff;
+      padding: 28px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    }
+    h1 {
+      margin: 0 0 24px 0;
+      color: #1e1b4b;
+      font-size: 1.6rem;
+      text-align: center;
+    }
+    .section {
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 600;
+      color: #334155;
+      font-size: 0.95rem;
+    }
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr 2fr 1.5fr;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    input[type="text"], input[type="date"], input[type="number"], select, textarea {
+      width: 100%;
+      padding: 9px 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+      line-height: 1.5;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: #4f46e5;
+      box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.15);
+    }
+    .full-width {
+      grid-column: 1 / -1;
+    }
+    button {
+      padding: 10px 18px;
+      background-color: #4f46e5;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background-color 0.2s;
+    }
+    button:hover {
+      background-color: #4338ca;
+    }
+    button:disabled {
+      background-color: #cbd5e1;
+      cursor: not-allowed;
+    }
+    .divider {
+      border: none;
+      border-top: 1px solid #e2e8f0;
+      margin: 24px 0;
+    }
+    
+    /* 搜尋與表格 */
+    .search-box {
+      margin-bottom: 20px;
+    }
+    .table-container {
+      overflow-x: auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.95rem;
+    }
+    th, td {
+      padding: 12px 14px;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    th {
+      background-color: #f1f5f9;
+      color: #475569;
+      font-weight: 600;
+    }
+    tr:hover {
+      background-color: #f8fafc;
+    }
+    .action-btns {
+      display: flex;
+      gap: 6px;
+    }
+    .view-btn {
+      background-color: #0284c7;
+      padding: 5px 10px;
+      font-size: 0.85rem;
+    }
+    .view-btn:hover { background-color: #0369a1; }
+    .delete-btn {
+      background-color: #ef4444;
+      padding: 5px 10px;
+      font-size: 0.85rem;
+    }
+    .delete-btn:hover { background-color: #dc2626; }
+    .empty-msg {
+      text-align: center;
+      color: #94a3b8;
+      padding: 24px;
+    }
+    .badge {
+      font-size: 0.85rem;
+      color: #64748b;
+      font-weight: normal;
+      margin-left: 6px;
+    }
+    .tag {
+      display: inline-block;
+      padding: 2px 8px;
+      background-color: #e0e7ff;
+      color: #3730a3;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    /* 分頁元件 */
+    .pagination-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 20px;
+    }
+    .page-btn {
+      background-color: #ffffff;
+      color: #334155;
+      border: 1px solid #cbd5e1;
+      padding: 6px 14px;
+      font-size: 0.9rem;
+    }
+    .page-btn:hover:not(:disabled) {
+      background-color: #f1f5f9;
+      color: #4f46e5;
+      border-color: #4f46e5;
+    }
+
+    /* 彈出視窗 Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(15, 23, 42, 0.5);
+      backdrop-filter: blur(4px);
+      display: flex; justify-content: center; align-items: center;
+      z-index: 1000; opacity: 0; pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+    .modal-overlay.active {
+      opacity: 1; pointer-events: auto;
+    }
+    .modal-card {
+      background: #ffffff;
+      padding: 24px;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 650px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    }
+    .modal-title {
+      font-size: 1.3rem; font-weight: 700; color: #1e1b4b;
+      margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;
+    }
+    .modal-body .form-group { margin-bottom: 14px; }
+    .sheet-link {
+      display: inline-block;
+      margin-top: 4px;
+      color: #2563eb;
+      text-decoration: underline;
+      word-break: break-all;
+    }
+
+    @media (max-width: 640px) {
+      .form-grid { grid-template-columns: 1fr 1fr; }
+      .form-grid .full-width-mobile { grid-column: 1 / -1; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>🎶 詩歌資料庫與賞析系統</h1>
+
+  <!-- 新增詩歌區塊 -->
+  <div class="section">
+    <label>新增詩歌資料</label>
+    <div class="form-grid">
+      <div>
+        <input type="text" id="addCategory" placeholder="分類 (如: 詩歌/補充)" list="categoryOptions">
+        <datalist id="categoryOptions">
+          <option value="詩歌">
+          <option value="補充本">
+          <option value="青年詩歌">
+          <option value="短歌">
+        </datalist>
+      </div>
+      <div>
+        <input type="number" id="addNumber" placeholder="號碼 (如: 100)">
+      </div>
+      <div class="full-width-mobile">
+        <input type="text" id="addTitle" placeholder="詩歌名稱">
+      </div>
+      <div>
+        <input type="date" id="addDate" title="製作日期">
+      </div>
+      
+      <div class="full-width">
+        <input type="text" id="addSheet" placeholder="樂譜網址 或 樂譜說明/調號 (選填)">
+      </div>
+      <div class="full-width">
+        <textarea id="addLyrics" placeholder="輸入歌詞..."></textarea>
+      </div>
+      <div class="full-width">
+        <textarea id="addAnalysis" placeholder="輸入賞析 / 靈修心得 / 背景 (選填)"></textarea>
+      </div>
+    </div>
+    <button id="addBtn" onclick="addHymn()" style="width: 100%;">➕ 新增詩歌</button>
+  </div>
+
+  <hr class="divider">
+
+  <!-- 搜尋區塊 -->
+  <div class="section search-box">
+    <label for="searchInput">🔍 快速搜尋 <span id="countBadge" class="badge"></span></label>
+    <input type="text" id="searchInput" placeholder="搜尋號碼 (例: 100)、名稱、分類 或 歌詞關鍵字..." oninput="onSearchInput()">
+  </div>
+
+  <!-- 表格展示區塊 -->
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th style="width: 110px;">分類/號碼</th>
+          <th>詩歌名稱</th>
+          <th style="width: 110px;">製作日期</th>
+          <th style="width: 100px; text-align: center;">樂譜連結</th>
+          <th style="width: 120px; text-align: center;">操作</th>
+        </tr>
+      </thead>
+      <tbody id="hymnTableBody">
+        <tr><td colspan="5" class="empty-msg">讀取詩歌資料中...</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 分頁控制 -->
+  <div class="pagination-container" id="paginationBox">
+    <button id="prevBtn" class="page-btn" onclick="changePage(-1)">← 上一頁</button>
+    <span id="pageInfo" class="page-info">第 1 / 1 頁</span>
+    <button id="nextBtn" class="page-btn" onclick="changePage(1)">下一頁 →</button>
+  </div>
+</div>
+
+<!-- 詳細內容與修改視窗 (Modal) -->
+<div id="hymnModal" class="modal-overlay">
+  <div class="modal-card">
+    <div class="modal-title">
+      <span>📖 詩歌詳細內容與修改</span>
+      <button onclick="closeModal()" style="background:#94a3b8; padding:4px 10px; font-size:0.85rem;">關閉</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="editOriginalId">
+      
+      <div class="form-grid">
+        <div>
+          <label>分類</label>
+          <input type="text" id="editCategory">
+        </div>
+        <div>
+          <label>號碼</label>
+          <input type="number" id="editNumber">
+        </div>
+        <div class="full-width-mobile">
+          <label>詩歌名稱</label>
+          <input type="text" id="editTitle">
+        </div>
+        <div>
+          <label>製作日期</label>
+          <input type="date" id="editDate">
+        </div>
+      </div>
+
+      <div class="form-group" style="margin-top: 10px;">
+        <label>樂譜 (網址/備註)</label>
+        <input type="text" id="editSheet">
+        <div id="sheetPreview"></div>
+      </div>
+
+      <div class="form-group">
+        <label>歌詞</label>
+        <textarea id="editLyrics" style="min-height: 160px;"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>賞析 / 靈修心得</label>
+        <textarea id="editAnalysis" style="min-height: 120px;"></textarea>
+      </div>
+    </div>
+    <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px;">
+      <button style="background-color: #94a3b8;" onclick="closeModal()">取消</button>
+      <button id="saveEditBtn" onclick="saveEdit()">💾 儲存修改</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // 請替換為您的 Cloudflare Worker 網址
+  const API_URL = "https://misty-river-c4e2.errmartin3.workers.dev";
+  
+  let allHymnsCache = [];
+  let currentPage = 1;
+  const itemsPerPage = 10;
+
+  // 初始化預設今日日期
+  document.getElementById('addDate').valueAsDate = new Date();
+
+  // 1. 載入資料
+  async function fetchHymns() {
+    const tbody = document.getElementById('hymnTableBody');
+    tbody.innerHTML = '<tr><td colspan="5" class="empty-msg">讀取詩歌資料中...</td></tr>';
+
+    try {
+      const res = await fetch(API_URL);
+      if (!res.ok) throw new Error('API 讀取失敗');
+      
+      const rawData = await res.json();
+      
+      allHymnsCache = rawData.map(item => ({
+        category: item.category || '詩歌',
+        number: item.number !== undefined ? item.number : '',
+        title: item.title || '未命名詩歌',
+        date: item.date || '-',
+        sheet: item.sheet || '',
+        lyrics: item.lyrics || '',
+        analysis: item.analysis || ''
+      }));
+
+      // 預設按「分類」與「號碼」排序
+      allHymnsCache.sort((a, b) => (a.number || 0) - (b.number || 0));
+
+      renderTable();
+    } catch (err) {
+      console.error("無法取得資料:", err);
+      tbody.innerHTML = '<tr><td colspan="5" class="empty-msg" style="color:#ef4444;">讀取資料失敗，請檢查 API 設定</td></tr>';
+    }
+  }
+
+  // 2. 搜尋過濾 (比對 號碼, 名稱, 歌詞, 分類)
+  function onSearchInput() {
+    currentPage = 1;
+    renderTable();
+  }
+
+  function changePage(delta) {
+    currentPage += delta;
+    renderTable();
+  }
+
+  // 3. 渲染表格
+  function renderTable() {
+    const keyword = document.getElementById('searchInput').value.toLowerCase().trim();
+    const tbody = document.getElementById('hymnTableBody');
+    const countBadge = document.getElementById('countBadge');
+
+    const filtered = allHymnsCache.filter(h => {
+      const catNum = `${h.category}${h.number}`.toLowerCase();
+      return catNum.includes(keyword) ||
+             String(h.number).includes(keyword) ||
+             h.title.toLowerCase().includes(keyword) ||
+             h.category.toLowerCase().includes(keyword) ||
+             h.lyrics.toLowerCase().includes(keyword) ||
+             h.analysis.toLowerCase().includes(keyword);
+    });
+
+    const totalItems = filtered.length;
+    const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
+
+    if (currentPage > totalPages) currentPage = totalPages;
+    if (currentPage < 1) currentPage = 1;
+
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const paginated = filtered.slice(startIndex, startIndex + itemsPerPage);
+
+    countBadge.textContent = `(找到 ${totalItems} 首)`;
+    tbody.innerHTML = '';
+
+    if (totalItems === 0) {
+      tbody.innerHTML = '<tr><td colspan="5" class="empty-msg">未找到符合條件的詩歌</td></tr>';
+      document.getElementById('paginationBox').style.display = 'none';
+      return;
+    }
+
+    document.getElementById('paginationBox').style.display = 'flex';
+
+    paginated.forEach(hymn => {
+      const originalIndex = allHymnsCache.indexOf(hymn);
+      const tr = document.createElement('tr');
+
+      // 判斷樂譜是否為連結
+      let sheetHtml = '-';
+      if (hymn.sheet) {
+        if (hymn.sheet.startsWith('http://') || hymn.sheet.startsWith('https://')) {
+          sheetHtml = `<a href="${escapeHtml(hymn.sheet)}" target="_blank" class="sheet-link">開啟樂譜</a>`;
+        } else {
+          sheetHtml = `<span title="${escapeHtml(hymn.sheet)}">🎼 有樂譜</span>`;
+        }
+      }
+
+      tr.innerHTML = `
+        <td><span class="tag">${escapeHtml(hymn.category)} ${hymn.number}</span></td>
+        <td><strong>${escapeHtml(hymn.title)}</strong></td>
+        <td>${escapeHtml(hymn.date)}</td>
+        <td style="text-align: center;">${sheetHtml}</td>
+        <td style="text-align: center;">
+          <div class="action-btns" style="justify-content: center;">
+            <button class="view-btn" onclick="openModal(${originalIndex})">檢視/修改</button>
+            <button class="delete-btn" onclick="deleteHymn('${escapeJsString(hymn.title)}')">刪除</button>
+          </div>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    document.getElementById('pageInfo').textContent = `第 ${currentPage} / ${totalPages} 頁`;
+    document.getElementById('prevBtn').disabled = (currentPage === 1);
+    document.getElementById('nextBtn').disabled = (currentPage === totalPages);
+  }
+
+  // 4. 新增詩歌
+  async function addHymn() {
+    const category = document.getElementById('addCategory').value.trim() || '詩歌';
+    const number = parseInt(document.getElementById('addNumber').value, 10) || '';
+    const title = document.getElementById('addTitle').value.trim();
+    const date = document.getElementById('addDate').value;
+    const sheet = document.getElementById('addSheet').value.trim();
+    const lyrics = document.getElementById('addLyrics').value;
+    const analysis = document.getElementById('addAnalysis').value;
+
+    if (!title) return alert('請輸入詩歌名稱！');
+
+    const btn = document.getElementById('addBtn');
+    btn.disabled = true;
+    btn.textContent = '新增中...';
+
+    try {
+      const res = await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ category, number, title, date, sheet, lyrics, analysis })
+      });
+
+      if (res.ok) {
+        // 清空輸入
+        document.getElementById('addTitle').value = '';
+        document.getElementById('addNumber').value = '';
+        document.getElementById('addSheet').value = '';
+        document.getElementById('addLyrics').value = '';
+        document.getElementById('addAnalysis').value = '';
+        await fetchHymns();
+      } else {
+        alert('新增失敗！');
+      }
+    } catch (err) {
+      console.error("新增錯誤:", err);
+      alert('連線失敗！');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = '➕ 新增詩歌';
+    }
+  }
+
+  // 5. 開啟 Modal
+  function openModal(index) {
+    const hymn = allHymnsCache[index];
+    if (!hymn) return;
+
+    document.getElementById('editOriginalId').value = hymn.title; // 作為比對 key
+    document.getElementById('editCategory').value = hymn.category;
+    document.getElementById('editNumber').value = hymn.number;
+    document.getElementById('editTitle').value = hymn.title;
+    document.getElementById('editDate').value = hymn.date === '-' ? '' : hymn.date;
+    document.getElementById('editSheet').value = hymn.sheet;
+    document.getElementById('editLyrics').value = hymn.lyrics;
+    document.getElementById('editAnalysis').value = hymn.analysis;
+
+    // 樂譜預覽
+    const preview = document.getElementById('sheetPreview');
+    if (hymn.sheet && (hymn.sheet.startsWith('http://') || hymn.sheet.startsWith('https://'))) {
+      preview.innerHTML = `<a href="${escapeHtml(hymn.sheet)}" target="_blank" class="sheet-link">🔗 點此開啟樂譜連結</a>`;
+    } else {
+      preview.innerHTML = '';
+    }
+
+    document.getElementById('hymnModal').classList.add('active');
+  }
+
+  function closeModal() {
+    document.getElementById('hymnModal').classList.remove('active');
+  }
+
+  // 6. 儲存修改
+  async function saveEdit() {
+    const oldTitle = document.getElementById('editOriginalId').value;
+    const category = document.getElementById('editCategory').value.trim() || '詩歌';
+    const number = parseInt(document.getElementById('editNumber').value, 10) || '';
+    const title = document.getElementById('editTitle').value.trim();
+    const date = document.getElementById('editDate').value;
+    const sheet = document.getElementById('editSheet').value.trim();
+    const lyrics = document.getElementById('editLyrics').value;
+    const analysis = document.getElementById('editAnalysis').value;
+
+    if (!title) return alert('詩歌名稱不能為空！');
+
+    const btn = document.getElementById('saveEditBtn');
+    btn.disabled = true;
+    btn.textContent = '更新中...';
+
+    try {
+      const res = await fetch(API_URL, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ oldTitle, category, number, title, date, sheet, lyrics, analysis })
+      });
+
+      if (res.ok) {
+        closeModal();
+        await fetchHymns();
+      } else {
+        alert('修改失敗！');
+      }
+    } catch (err) {
+      console.error("修改錯誤:", err);
+      alert('連線失敗！');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = '💾 儲存修改';
+    }
+  }
+
+  // 7. 刪除
+  async function deleteHymn(title) {
+    if (!confirm(`確定要刪除詩歌「${title}」嗎？`)) return;
+
+    try {
+      const res = await fetch(API_URL, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title })
+      });
+
+      if (res.ok) {
+        await fetchHymns();
+      } else {
+        alert('刪除失敗！');
+      }
+    } catch (err) {
+      console.error("刪除錯誤:", err);
+      alert('連線失敗！');
+    }
+  }
+
+  function escapeHtml(text) {
+    return String(text).replace(/[&<>"']/g, function(m) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m];
+    });
+  }
+
+  function escapeJsString(str) {
+    return String(str).replace(/'/g, "\\'").replace(/"/g, '\\"');
+  }
+
+  fetchHymns();
+</script>
+
+</body>
+</html>
