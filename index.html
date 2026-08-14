@@ -142,19 +142,21 @@
       margin-left: 6px;
     }
 
-    /* 表格內的快速勾選框樣式 */
+    /* 表格內的勾選框與狀態 */
     .table-checkbox {
       width: 18px;
       height: 18px;
       cursor: pointer;
       vertical-align: middle;
     }
-    .saving-text {
+    .status-msg {
       font-size: 0.75rem;
-      color: #2563eb;
-      display: block;
-      margin-top: 2px;
+      display: inline-block;
+      margin-left: 4px;
     }
+    .status-waiting { color: #d97706; }
+    .status-saving { color: #2563eb; }
+    .status-success { color: #16a34a; }
 
     /* 分頁元件樣式 */
     .pagination-container {
@@ -290,7 +292,7 @@
           <th>書名</th>
           <th style="width: 120px;">出版日期</th>
           <th style="width: 90px; text-align: center;">閱讀次數</th>
-          <th style="width: 90px; text-align: center;">已購買</th>
+          <th style="width: 110px; text-align: center;">已購買</th>
           <th style="width: 120px; text-align: center;">操作</th>
         </tr>
       </thead>
@@ -348,9 +350,13 @@
   const API_URL = "https://github-books-api.errmartin3.workers.dev";
   let allBooksCache = [];
   
-  // 分頁設定變數
+  // 分頁與延遲儲存控制變數
   let currentPage = 1;
   const itemsPerPage = 10;
+  
+  // 延遲儲存 (Debounce) 相關變數
+  let pendingSaveTimers = {}; // 紀錄每本書的倒數計時器
+  let pendingChanges = {};    // 紀錄有待儲存變更的書籍
 
   // 1. 載入書籍資料
   async function fetchBooks() {
@@ -438,13 +444,13 @@
         <td style="text-align: center;">
           <input type="checkbox" class="table-checkbox" 
             ${book.purchased ? 'checked' : ''} 
-            onchange="quickTogglePurchased(${originalIndex}, this.checked, this)">
+            onchange="debouncedTogglePurchased(${originalIndex}, this.checked)">
           <span id="status-${originalIndex}"></span>
         </td>
         <td style="text-align: center;">
           <div class="action-btns" style="justify-content: center;">
-            <button class="edit-btn" onclick="openEditModalByIndex(${originalIndex})">修改</button>
-            <button class="delete-btn" onclick="deleteBook('${escapeJsString(book.title)}')">刪除</button>
+            <button class="edit-btn" onclick="handleEditClick(${originalIndex})">修改</button>
+            <button class="delete-btn" onclick="handleDeleteClick('${escapeJsString(book.title)}')">刪除</button>
           </div>
         </td>
       `;
@@ -456,17 +462,36 @@
     document.getElementById('nextBtn').disabled = (currentPage === totalPages);
   }
 
-  // 5. 不用進修改頁面！表格內直接點擊勾選框即時儲存
-  async function quickTogglePurchased(index, newPurchasedState, checkboxElem) {
+  // 5. 帶有 1.5 秒延遲 (Debounce) 的勾選處理
+  function debouncedTogglePurchased(index, newPurchasedState) {
     const book = allBooksCache[index];
     if (!book) return;
 
-    const oldState = book.purchased;
-    book.purchased = newPurchasedState; // 樂觀更新快取
+    // 1. 畫面立刻更新（無卡頓感）
+    book.purchased = newPurchasedState;
 
-    const statusElem = document.getElementById(`status-${index}`);
-    if (statusElem) statusElem.outerHTML = `<span id="status-${index}" class="saving-text">儲存中...</span>`;
-    checkboxElem.disabled = true;
+    // 2. 顯示「等待儲存」提示
+    updateStatusText(index, '<span class="status-msg status-waiting">等待儲存...</span>');
+
+    // 3. 清除舊的計時器（如果在 1.5 秒內又點擊，重新計算 1.5 秒）
+    if (pendingSaveTimers[book.title]) {
+      clearTimeout(pendingSaveTimers[book.title]);
+    }
+    pendingChanges[book.title] = book;
+
+    // 4. 設定 1.5 秒後自動發送 API
+    pendingSaveTimers[book.title] = setTimeout(() => {
+      executeSave(book.title, index);
+    }, 1500);
+  }
+
+  // 真正發送 API 到 Cloudflare Worker 儲存
+  async function executeSave(bookTitle, index) {
+    const book = pendingChanges[bookTitle];
+    if (!book) return;
+
+    delete pendingSaveTimers[bookTitle];
+    updateStatusText(index, '<span class="status-msg status-saving">儲存中...</span>');
 
     try {
       const res = await fetch(API_URL, {
@@ -478,28 +503,60 @@
           date: book.date === '-' ? '' : book.date,
           reads: book.reads,
           toc: book.toc,
-          purchased: newPurchasedState
+          purchased: book.purchased
         })
       });
 
-      if (!res.ok) throw new Error("快速儲存失敗");
+      if (!res.ok) throw new Error("儲存失敗");
 
-      const currentStatusElem = document.getElementById(`status-${index}`);
-      if (currentStatusElem) currentStatusElem.innerHTML = '';
+      delete pendingChanges[bookTitle];
+      updateStatusText(index, '<span class="status-msg status-success">已儲存</span>');
+      
+      // 1.5 秒後自動隱藏「已儲存」字樣
+      setTimeout(() => {
+        updateStatusText(index, '');
+      }, 1500);
+
     } catch (err) {
-      console.error("更新購買狀態失敗:", err);
-      alert("儲存失敗，請檢查網路！");
-      book.purchased = oldState; // 失敗時復原
-      checkboxElem.checked = oldState;
-      const currentStatusElem = document.getElementById(`status-${index}`);
-      if (currentStatusElem) currentStatusElem.innerHTML = '';
-    } finally {
-      checkboxElem.disabled = false;
+      console.error("更新失敗:", err);
+      alert(`「${book.title}」儲存失敗，請檢查連線！`);
+      updateStatusText(index, '<span class="status-msg" style="color:#ef4444;">失敗</span>');
     }
   }
 
-  // 6. 新增書籍 (預設未購買)
+  // 強制立刻同步所有尚在等待儲存的項目（防止開啟修改視窗或刪除時產生版本衝突）
+  async function flushPendingSaves() {
+    const pendingTitles = Object.keys(pendingChanges);
+    for (const title of pendingTitles) {
+      if (pendingSaveTimers[title]) {
+        clearTimeout(pendingSaveTimers[title]);
+      }
+      const index = allBooksCache.findIndex(b => b.title === title);
+      await executeSave(title, index);
+    }
+  }
+
+  function updateStatusText(index, htmlContent) {
+    const statusElem = document.getElementById(`status-${index}`);
+    if (statusElem) statusElem.innerHTML = htmlContent;
+  }
+
+  // 6. 開啟修改視窗前，強制檢查並先將待儲存項目送出
+  async function handleEditClick(index) {
+    await flushPendingSaves();
+    openEditModalByIndex(index);
+  }
+
+  // 7. 刪除前，強制檢查並先將待儲存項目送出
+  async function handleDeleteClick(title) {
+    await flushPendingSaves();
+    deleteBook(title);
+  }
+
+  // 8. 新增書籍 (預設未購買)
   async function addBook() {
+    await flushPendingSaves();
+
     const titleInput = document.getElementById('bookTitle');
     const dateInput = document.getElementById('bookDate');
     const readsInput = document.getElementById('bookReads');
@@ -539,7 +596,7 @@
     }
   }
 
-  // 7. 開啟修改視窗（編輯目錄與書籍詳細資料）
+  // 9. 開啟修改視窗
   function openEditModalByIndex(index) {
     const book = allBooksCache[index];
     if (!book) return;
@@ -558,7 +615,7 @@
     document.getElementById('editModal').classList.remove('active');
   }
 
-  // 8. 儲存彈出視窗的修改內容
+  // 10. 儲存修改視窗內容
   async function saveEdit() {
     const oldTitle = document.getElementById('editOldTitle').value;
     const title = document.getElementById('editTitle').value.trim();
@@ -595,7 +652,7 @@
     }
   }
 
-  // 9. 刪除書籍
+  // 11. 刪除書籍
   async function deleteBook(title) {
     if (!confirm(`確定要刪除「${title}」這本書嗎？`)) return;
 
@@ -616,6 +673,14 @@
       alert('連線失敗！');
     }
   }
+
+  // 防關閉提醒：若還有資料待寫入 GitHub，跳出警告
+  window.addEventListener('beforeunload', (e) => {
+    if (Object.keys(pendingChanges).length > 0) {
+      e.preventDefault();
+      e.returnValue = '尚有未儲存的更改，確定要離開嗎？';
+    }
+  });
 
   function escapeHtml(text) {
     return String(text).replace(/[&<>"']/g, function(m) {
