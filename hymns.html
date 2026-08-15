@@ -19,8 +19,8 @@
       
       --tag-詩歌: #e0e7ff; --tag-詩歌-txt: #3730a3;
       --tag-補充本: #fef3c7; --tag-補充本-txt: #92400e;
-      --tag-青年詩歌: #dcfce7; --tag-青年詩歌-txt: #166534;
-      --tag-短歌: #f3e8ff; --tag-短歌-txt: #6b21a8;
+      --tag-新詩: #dcfce7; --tag-新詩-txt: #166534;
+      --tag-英文: #f3e8ff; --tag-英文-txt: #6b21a8;
       --tag-custom: #fce7f3; --tag-custom-txt: #9d174d;
     }
 
@@ -226,8 +226,8 @@
     }
     .badge-詩歌 { background: var(--tag-詩歌); color: var(--tag-詩歌-txt); }
     .badge-補充本 { background: var(--tag-補充本); color: var(--tag-補充本-txt); }
-    .badge-青年詩歌 { background: var(--tag-青年詩歌); color: var(--tag-青年詩歌-txt); }
-    .badge-短歌 { background: var(--tag-短歌); color: var(--tag-短歌-txt); }
+    .badge-新詩 { background: var(--tag-新詩); color: var(--tag-新詩-txt); }
+    .badge-英文 { background: var(--tag-英文); color: var(--tag-英文-txt); }
     .badge-custom { background: var(--tag-custom); color: var(--tag-custom-txt); }
 
     /* 詩歌詳細頁面 */
@@ -441,8 +441,8 @@
           <datalist id="categoryOptions">
             <option value="詩歌">
             <option value="補充本">
-            <option value="青年詩歌">
-            <option value="短歌">
+            <option value="新詩">
+            <option value="英文">
           </datalist>
         </div>
         <div class="form-group">
@@ -547,7 +547,7 @@
       let tabList = ['全部'];
 
       if (categoryMode === 'original') {
-        const set = new Set(['詩歌', '補充本', '青年詩歌', '短歌']);
+        const set = new Set(['詩歌', '補充本', '新詩', '英文']);
         allHymnsCache.forEach(h => { if(h.category) set.add(h.category); });
         tabList = ['全部', ...Array.from(set)];
       } else {
