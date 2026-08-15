@@ -49,7 +49,6 @@
       min-height: 85vh;
     }
 
-    /* 頂部 Header */
     header {
       padding: 18px 24px;
       border-bottom: 1px solid var(--border);
@@ -78,7 +77,6 @@
     }
     .btn-primary:hover { background: var(--primary-hover); }
 
-    /* 視圖切換 */
     .view-section {
       display: none;
       flex: 1;
@@ -93,7 +91,6 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
-    /* 搜尋與分類 Toggle */
     .search-box {
       width: 100%;
       padding: 12px 16px;
@@ -162,7 +159,6 @@
       border-color: var(--text);
     }
 
-    /* 詩歌列表卡片 */
     .hymn-list {
       display: flex;
       flex-direction: column;
@@ -214,7 +210,7 @@
       max-width: 380px;
     }
 
-    .badge-group { display: flex; gap: 6px; align-items: center; }
+    .badge-group { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
     .badge {
       font-size: 0.75rem;
       padding: 3px 8px;
@@ -230,7 +226,6 @@
     .badge-英文 { background: var(--tag-英文); color: var(--tag-英文-txt); }
     .badge-custom { background: var(--tag-custom); color: var(--tag-custom-txt); }
 
-    /* 詩歌詳細頁面 */
     .detail-nav {
       display: flex;
       justify-content: space-between;
@@ -250,7 +245,7 @@
     .btn-back:hover { background: #f1f5f9; color: var(--text); }
 
     .detail-header-info { margin-bottom: 16px; }
-    .detail-meta { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+    .detail-meta { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; flex-wrap: wrap; }
     .detail-title { font-size: 1.75rem; font-weight: 700; margin: 0 0 10px 0; }
     
     .sheet-box {
@@ -304,7 +299,6 @@
     .btn-danger { color: #ef4444; border-color: #fca5a5; }
     .btn-danger:hover { background: #fef2f2; }
 
-    /* 滑出 Drawer (新增/編輯) */
     .drawer-overlay {
       position: fixed;
       inset: 0;
@@ -369,17 +363,14 @@
       <button class="btn-primary" onclick="openDrawer('add')">＋ 新增詩歌</button>
     </header>
 
-    <!-- 畫面一：搜尋與列表頁 (ListView) -->
     <section id="listView" class="view-section active">
       <input type="text" id="searchInput" class="search-box" placeholder="🔍 搜尋號碼、名稱、分類或歌詞..." oninput="renderList()">
       
-      <!-- 分類模式切換 Toggle -->
       <div class="mode-switch-container">
         <button id="modeOriginalBtn" class="mode-btn active" onclick="switchCategoryMode('original')">📖 原分類</button>
         <button id="modeCustomBtn" class="mode-btn" onclick="switchCategoryMode('custom')">⭐ 自訂分類</button>
       </div>
 
-      <!-- 動態分類標籤列 -->
       <div id="filterTabs" class="filter-tabs"></div>
 
       <div id="hymnListContainer" class="hymn-list">
@@ -387,7 +378,6 @@
       </div>
     </section>
 
-    <!-- 畫面二：詳細內容頁面 (DetailView) -->
     <section id="detailView" class="view-section">
       <div class="detail-nav">
         <button class="btn-back" onclick="goBackToList()">← 返回列表</button>
@@ -400,7 +390,7 @@
       <div class="detail-header-info">
         <div class="detail-meta">
           <span class="badge" id="detailCatBadge">詩歌</span>
-          <span class="badge badge-custom" id="detailCustomBadge" style="display:none;">常唱</span>
+          <div id="detailCustomBadgesGroup" style="display:inline-flex; gap:6px;"></div>
           <span style="font-weight:700; color:var(--primary); font-size:1.1rem;" id="detailNum">#100</span>
         </div>
         <h2 class="detail-title" id="detailTitle">詩歌名稱</h2>
@@ -424,7 +414,6 @@
     </section>
   </div>
 
-  <!-- 滑出式 Drawer (新增/編輯) -->
   <div id="drawerOverlay" class="drawer-overlay" onclick="closeDrawer()"></div>
   <aside id="drawer" class="drawer">
     <div class="drawer-header">
@@ -452,8 +441,8 @@
       </div>
 
       <div class="form-group">
-        <label>自訂分類標籤 (選填)</label>
-        <input type="text" id="itemCustomCat" class="form-control" placeholder="例如：常唱、超讚、福音、禱告">
+        <label>自訂分類標籤 (以「、」或逗號分隔多個分類)</label>
+        <input type="text" id="itemCustomCat" class="form-control" placeholder="例如：常唱、超讚、福音">
       </div>
 
       <div class="form-group">
@@ -488,15 +477,22 @@
   </aside>
 
   <script>
-    // 指向 Cloudflare Worker API
     const API_URL = "https://hymns-api.errmartin3.workers.dev/hymns";
 
     let allHymnsCache = [];
-    let categoryMode = 'original'; // 'original' 或 'custom'
+    let categoryMode = 'original';
     let currentCategory = '全部';
     let activeDetailIndex = null;
 
-    // 1. 從 API 載入資料
+    // 解析並正規化自訂分類為陣列（自動切分「、」「,」「，」）
+    function parseCustomCategories(val) {
+      if (Array.isArray(val)) {
+        return val.map(s => String(s).trim()).filter(Boolean);
+      }
+      if (!val) return [];
+      return String(val).split(/[,，、]/).map(s => s.trim()).filter(Boolean);
+    }
+
     async function fetchHymns() {
       try {
         const res = await fetch(API_URL);
@@ -506,7 +502,7 @@
         
         allHymnsCache = rawData.map(item => ({
           category: item.category || '詩歌',
-          customCategory: item.customCategory || '',
+          customCategory: parseCustomCategories(item.customCategory),
           number: item.number !== undefined ? item.number : '',
           title: item.title || '未命名詩歌',
           date: item.date || '-',
@@ -515,7 +511,6 @@
           analysis: item.analysis || ''
         }));
 
-        // 預設按號碼排序
         allHymnsCache.sort((a, b) => (Number(a.number) || 0) - (Number(b.number) || 0));
 
         renderFilterTabs();
@@ -527,7 +522,6 @@
       }
     }
 
-    // 2. 切換原分類與自訂分類
     function switchCategoryMode(mode) {
       categoryMode = mode;
       currentCategory = '全部';
@@ -539,7 +533,6 @@
       renderList();
     }
 
-    // 3. 動態渲染分類標籤
     function renderFilterTabs() {
       const tabsContainer = document.getElementById('filterTabs');
       tabsContainer.innerHTML = '';
@@ -553,9 +546,8 @@
       } else {
         const customSet = new Set(['常唱', '超讚']);
         allHymnsCache.forEach(h => {
-          if (h.customCategory && h.customCategory.trim() !== '') {
-            customSet.add(h.customCategory.trim());
-          }
+          const cats = parseCustomCategories(h.customCategory);
+          cats.forEach(c => customSet.add(c));
         });
         tabList = ['全部', ...Array.from(customSet)];
       }
@@ -574,7 +566,6 @@
       });
     }
 
-    // 4. 渲染列表卡片
     function renderList() {
       const query = document.getElementById('searchInput').value.toLowerCase().trim();
       const container = document.getElementById('hymnListContainer');
@@ -582,18 +573,20 @@
 
       const filtered = allHymnsCache.filter(item => {
         let matchCat = false;
+        const customCats = parseCustomCategories(item.customCategory);
+
         if (currentCategory === '全部') {
           matchCat = true;
         } else if (categoryMode === 'original') {
           matchCat = (item.category === currentCategory);
         } else if (categoryMode === 'custom') {
-          matchCat = (item.customCategory === currentCategory);
+          matchCat = customCats.includes(currentCategory);
         }
 
         const matchQuery = String(item.number).toLowerCase().includes(query) ||
                            item.title.toLowerCase().includes(query) ||
                            item.category.toLowerCase().includes(query) ||
-                           (item.customCategory && item.customCategory.toLowerCase().includes(query)) ||
+                           customCats.some(c => c.toLowerCase().includes(query)) ||
                            item.lyrics.toLowerCase().includes(query) ||
                            item.analysis.toLowerCase().includes(query);
 
@@ -613,7 +606,9 @@
 
         const snippet = item.lyrics ? item.lyrics.replace(/\n/g, ' ') : '無歌詞內容';
         const numText = item.number ? `#${item.number}` : '';
-        const customBadgeHtml = item.customCategory ? `<span class="badge badge-custom">⭐ ${escapeHtml(item.customCategory)}</span>` : '';
+        
+        const customCats = parseCustomCategories(item.customCategory);
+        const customBadgesHtml = customCats.map(c => `<span class="badge badge-custom">⭐ ${escapeHtml(c)}</span>`).join('');
 
         card.innerHTML = `
           <div class="item-left">
@@ -625,14 +620,13 @@
           </div>
           <div class="badge-group">
             <span class="badge badge-${escapeHtml(item.category)}">${escapeHtml(item.category)}</span>
-            ${customBadgeHtml}
+            ${customBadgesHtml}
           </div>
         `;
         container.appendChild(card);
       });
     }
 
-    // 5. 進入詩歌詳細頁面
     function openDetailView(index) {
       const item = allHymnsCache[index];
       if (!item) return;
@@ -647,15 +641,14 @@
       badge.textContent = item.category;
       badge.className = `badge badge-${item.category}`;
 
-      const customBadge = document.getElementById('detailCustomBadge');
-      if (item.customCategory) {
-        customBadge.textContent = `⭐ ${item.customCategory}`;
-        customBadge.style.display = 'inline-block';
+      const customBadgesGroup = document.getElementById('detailCustomBadgesGroup');
+      const customCats = parseCustomCategories(item.customCategory);
+      if (customCats.length > 0) {
+        customBadgesGroup.innerHTML = customCats.map(c => `<span class="badge badge-custom">⭐ ${escapeHtml(c)}</span>`).join('');
       } else {
-        customBadge.style.display = 'none';
+        customBadgesGroup.innerHTML = '';
       }
 
-      // 樂譜處理
       const sheetBox = document.getElementById('sheetBoxContainer');
       const sheetSpan = document.getElementById('detailSheet');
       if (item.sheet) {
@@ -669,7 +662,6 @@
         sheetBox.style.display = 'none';
       }
 
-      // 賞析處理
       const analysisSection = document.getElementById('analysisSection');
       if (item.analysis && item.analysis.trim() !== '') {
         analysisSection.style.display = 'block';
@@ -678,7 +670,6 @@
         analysisSection.style.display = 'none';
       }
 
-      // 綁定按鈕動作
       document.getElementById('btnEdit').onclick = () => openDrawer('edit', index);
       document.getElementById('btnDelete').onclick = () => deleteItem(item.title);
 
@@ -697,7 +688,6 @@
       renderList();
     }
 
-    // 6. Drawer 表單控制
     function openDrawer(mode, index = null) {
       const drawer = document.getElementById('drawer');
       const overlay = document.getElementById('drawerOverlay');
@@ -709,7 +699,10 @@
         document.getElementById('editOriginalTitle').value = item.title;
         document.getElementById('itemCat').value = item.category;
         document.getElementById('itemNum').value = item.number;
-        document.getElementById('itemCustomCat').value = item.customCategory || '';
+        
+        const customCats = parseCustomCategories(item.customCategory);
+        document.getElementById('itemCustomCat').value = customCats.join('、');
+        
         document.getElementById('itemName').value = item.title;
         document.getElementById('itemDate').value = item.date === '-' ? '' : item.date;
         document.getElementById('itemSheet').value = item.sheet;
@@ -731,14 +724,16 @@
       document.getElementById('drawerOverlay').classList.remove('open');
     }
 
-    // 7. 新增 / 修改 API 送出
     async function saveItem(e) {
       e.preventDefault();
       
       const oldTitle = document.getElementById('editOriginalTitle').value;
       const category = document.getElementById('itemCat').value.trim() || '詩歌';
       const number = parseInt(document.getElementById('itemNum').value, 10) || '';
-      const customCategory = document.getElementById('itemCustomCat').value.trim();
+      
+      // 自動以「、」或逗號將字串切割為陣列送出
+      const customCategory = parseCustomCategories(document.getElementById('itemCustomCat').value);
+      
       const title = document.getElementById('itemName').value.trim();
       const date = document.getElementById('itemDate').value;
       const sheet = document.getElementById('itemSheet').value.trim();
@@ -787,7 +782,6 @@
       }
     }
 
-    // 8. 刪除 API 送出
     async function deleteItem(title) {
       if (!confirm(`確定要刪除詩歌「${title}」嗎？`)) return;
 
@@ -816,7 +810,6 @@
       });
     }
 
-    // 初始化頁面
     fetchHymns();
   </script>
 </body>
