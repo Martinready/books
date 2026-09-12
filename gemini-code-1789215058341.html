@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>美地簿</title>
+    <style>
+        :root {
+            --primary-color: #4a7c59;
+            --primary-hover: #3b6346;
+            --bg-color: #f4f7f5;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --border-color: #dddddd;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+
+        header h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border-color);
+            background-color: #fafafa;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 14px 8px;
+            border: none;
+            background: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+
+        .tab-btn.active {
+            color: var(--primary-color);
+            border-bottom: 3px solid var(--primary-color);
+            background-color: var(--card-bg);
+            font-weight: bold;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 24px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .form-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .form-row label {
+            font-weight: bold;
+            white-space: nowrap;
+            width: 70px;
+        }
+
+        input[type="date"], input[type="time"] {
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 1rem;
+            outline: none;
+            flex: 1;
+        }
+
+        textarea {
+            width: 100%;
+            height: 180px;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            resize: vertical;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        textarea:focus {
+            border-color: var(--primary-color);
+        }
+
+        .btn-submit {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px;
+            font-size: 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+
+        .btn-submit:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-submit:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .search-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .search-group label {
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        .records-table {
+            width: 100%;
+            border-collapse: collapse;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .records-table td {
+            padding: 12px;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: middle;
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+
+        .records-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .records-table td.col-time {
+            width: 80px;
+            text-align: center;
+            font-weight: bold;
+            color: var(--primary-color);
+            background-color: #f2f7f4;
+            border-right: 1px solid var(--border-color);
+            white-space: nowrap;
+        }
+
+        .records-table td.col-content {
+            background-color: #ffffff;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .no-data {
+            text-align: center;
+            color: #999;
+            padding: 30px 0;
+        }
+
+        .toast {
+            position: fixed;
+            top: -60px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #333;
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-size: 0.95rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            transition: top 0.3s ease, opacity 0.3s ease;
+            opacity: 0;
+            z-index: 1000;
+            pointer-events: none;
+        }
+
+        .toast.show {
+            top: 25px;
+            opacity: 1;
+        }
+
+        .toast.warning {
+            background-color: #d9534f;
+        }
+
+        .toast.success {
+            background-color: var(--primary-color);
+        }
+    </style>
+</head>
+<body>
+
+    <div id="toast" class="toast"></div>
+
+    <div class="container">
+        <header>
+            <h1>美地簿</h1>
+        </header>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab(event, 'add-tab')">新增紀錄</button>
+            <button class="tab-btn" onclick="switchTab(event, 'backfill-tab')">補填其他天</button>
+            <button class="tab-btn" onclick="switchTab(event, 'query-tab')">查詢紀錄</button>
+        </div>
+
+        <!-- 頁籤一：即時新增 -->
+        <div id="add-tab" class="tab-content active">
+            <div class="input-group">
+                <textarea id="note-input" placeholder="請在此輸入內容..."></textarea>
+                <button id="btn-save-note" class="btn-submit" onclick="saveNote()">確認儲存</button>
+            </div>
+        </div>
+
+        <!-- 頁籤二：補填 -->
+        <div id="backfill-tab" class="tab-content">
+            <div class="input-group">
+                <div class="form-row">
+                    <label for="backfill-date">選擇日期</label>
+                    <input type="date" id="backfill-date">
+                </div>
+                <div class="form-row">
+                    <label for="backfill-time">選擇時間</label>
+                    <input type="time" id="backfill-time">
+                </div>
+                <textarea id="backfill-note-input" placeholder="請在此輸入補填內容..."></textarea>
+                <button id="btn-save-backfill" class="btn-submit" onclick="saveBackfillNote()">確認補填儲存</button>
+            </div>
+        </div>
+
+        <!-- 頁籤三：查詢 -->
+        <div id="query-tab" class="tab-content">
+            <div class="search-group">
+                <label for="search-date">選擇日期：</label>
+                <input type="date" id="search-date" onchange="filterNotes()">
+            </div>
+            <div id="records-container"></div>
+        </div>
+    </div>
+
+    <script>
+        // 請在此填入您的 Cloudflare Worker 網址
+        const API_URL = "https://midi-book-api.your-subdomain.workers.dev";
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast show ${type}`;
+            setTimeout(() => { toast.className = 'toast'; }, 2000);
+        }
+
+        function switchTab(evt, tabId) {
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+
+            document.getElementById(tabId).classList.add('active');
+            evt.currentTarget.classList.add('active');
+
+            if (tabId === 'backfill-tab') {
+                const backfillDate = document.getElementById('backfill-date');
+                const backfillTime = document.getElementById('backfill-time');
+                const now = new Date();
+                if (!backfillDate.value) backfillDate.value = now.toISOString().split('T')[0];
+                if (!backfillTime.value) {
+                    const hours = String(now.getHours()).padStart(2, '0');
+                    const minutes = String(now.getMinutes()).padStart(2, '0');
+                    backfillTime.value = `${hours}:${minutes}`;
+                }
+            }
+
+            if (tabId === 'query-tab') {
+                const searchDateInput = document.getElementById('search-date');
+                if (!searchDateInput.value) {
+                    searchDateInput.value = new Date().toISOString().split('T')[0];
+                }
+                filterNotes();
+            }
+        }
+
+        function getFormattedDateTime() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+
+            return {
+                date: `${year}-${month}-${day}`,
+                time: `${hours}:${minutes}`,
+                timestamp: now.getTime()
+            };
+        }
+
+        async function postRecord(recordData, btnElement, inputElement) {
+            btnElement.disabled = true;
+            btnElement.textContent = "儲存中...";
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(recordData)
+                });
+
+                if (response.ok) {
+                    showToast('儲存成功！', 'success');
+                    if (inputElement) inputElement.value = '';
+                } else {
+                    showToast('儲存失敗，請再試一次', 'warning');
+                }
+            } catch (error) {
+                console.error(error);
+                showToast('連線錯誤', 'warning');
+            } finally {
+                btnElement.disabled = false;
+                btnElement.textContent = "確認儲存";
+            }
+        }
+
+        function saveNote() {
+            const inputElement = document.getElementById('note-input');
+            const btnElement = document.getElementById('btn-save-note');
+            const content = inputElement.value.trim();
+
+            if (!content) {
+                showToast('請輸入內容後再進行儲存！', 'warning');
+                return;
+            }
+
+            const timeData = getFormattedDateTime();
+            const newRecord = {
+                id: Date.now(),
+                date: timeData.date,
+                time: timeData.time,
+                content: content,
+                timestamp: timeData.timestamp
+            };
+
+            postRecord(newRecord, btnElement, inputElement);
+        }
+
+        function saveBackfillNote() {
+            const dateInput = document.getElementById('backfill-date').value;
+            const timeInput = document.getElementById('backfill-time').value;
+            const contentInput = document.getElementById('backfill-note-input');
+            const btnElement = document.getElementById('btn-save-backfill');
+            const content = contentInput.value.trim();
+
+            if (!dateInput || !timeInput || !content) {
+                showToast('請填寫完整日期、時間與內容！', 'warning');
+                return;
+            }
+
+            const targetDateTime = new Date(`${dateInput}T${timeInput}`);
+            const newRecord = {
+                id: Date.now(),
+                date: dateInput,
+                time: timeInput,
+                content: content,
+                timestamp: targetDateTime.getTime()
+            };
+
+            postRecord(newRecord, btnElement, contentInput);
+        }
+
+        async function filterNotes() {
+            const selectedDate = document.getElementById('search-date').value;
+            const container = document.getElementById('records-container');
+            container.innerHTML = '<div class="no-data">載入中...</div>';
+
+            if (!selectedDate) {
+                container.innerHTML = '<div class="no-data">請選擇查詢日期</div>';
+                return;
+            }
+
+            try {
+                const res = await fetch(API_URL);
+                const notes = await res.json();
+
+                const filtered = notes.filter(note => note.date === selectedDate);
+                filtered.sort((a, b) => a.timestamp - b.timestamp);
+
+                if (filtered.length === 0) {
+                    container.innerHTML = '<div class="no-data">該日期無填寫紀錄</div>';
+                    return;
+                }
+
+                const table = document.createElement('table');
+                table.className = 'records-table';
+                const tbody = document.createElement('tbody');
+
+                filtered.forEach(item => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td class="col-time">${item.time}</td>
+                        <td class="col-content">${escapeHtml(item.content)}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+
+                table.appendChild(tbody);
+                container.innerHTML = '';
+                container.appendChild(table);
+            } catch (error) {
+                console.error(error);
+                container.innerHTML = '<div class="no-data">資料載入失敗</div>';
+            }
+        }
+
+        function escapeHtml(text) {
+            return text
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+    </script>
+</body>
+</html>
