@@ -191,12 +191,16 @@
             background-color: #f2f7f4;
             border-right: 1px solid var(--border-color);
             white-space: nowrap;
+            /* 讓 Excel 貼上時保持文字格式，不被當作數字 */
+            mso-number-format: "\@";
         }
 
         .records-table td.col-content {
             background-color: #ffffff;
             white-space: pre-wrap;
             word-break: break-word;
+            /* 協助 Excel 識別換行樣式 */
+            mso-number-format: "\@";
         }
 
         .no-data {
@@ -286,7 +290,6 @@
     </div>
 
     <script>
-        // 請在此填入您的 Cloudflare Worker 網址
         const API_URL = "https://goodland-api.errmartin3.workers.dev/";
 
         function showToast(message, type = 'success') {
@@ -334,7 +337,7 @@
 
             return {
                 date: `${year}-${month}-${day}`,
-                time: `${hours}:${minutes}`,
+                time: `${hours}${minutes}`, // 24小時制，不含冒號，例如：1430
                 timestamp: now.getTime()
             };
         }
@@ -389,7 +392,7 @@
 
         function saveBackfillNote() {
             const dateInput = document.getElementById('backfill-date').value;
-            const timeInput = document.getElementById('backfill-time').value;
+            const timeInput = document.getElementById('backfill-time').value; // 格式通常為 HH:mm
             const contentInput = document.getElementById('backfill-note-input');
             const btnElement = document.getElementById('btn-save-backfill');
             const content = contentInput.value.trim();
@@ -399,11 +402,14 @@
                 return;
             }
 
+            // 將輸入的時間去掉冒號，確保統一格式為 HHmm
+            const formattedTime = timeInput.replace(':', '');
             const targetDateTime = new Date(`${dateInput}T${timeInput}`);
+
             const newRecord = {
                 id: Date.now(),
                 date: dateInput,
-                time: timeInput,
+                time: formattedTime,
                 content: content,
                 timestamp: targetDateTime.getTime()
             };
@@ -439,8 +445,12 @@
 
                 filtered.forEach(item => {
                     const tr = document.createElement('tr');
+                    
+                    // 格式化時間：若舊資料有冒號，在此一併替換移除
+                    const displayTime = String(item.time || '').replace(':', '');
+
                     tr.innerHTML = `
-                        <td class="col-time">${item.time}</td>
+                        <td class="col-time">${displayTime}</td>
                         <td class="col-content">${escapeHtml(item.content)}</td>
                     `;
                     tbody.appendChild(tr);
