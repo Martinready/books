@@ -12,6 +12,9 @@
             --card-bg: #ffffff;
             --text-color: #333333;
             --border-color: #dddddd;
+            --btn-cancel: #888888;
+            --btn-edit: #31708f;
+            --btn-copy: #2c6e9c;
         }
 
         * {
@@ -32,7 +35,7 @@
 
         .container {
             width: 100%;
-            max-width: 600px;
+            max-width: 700px;
             background-color: var(--card-bg);
             border-radius: 12px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
@@ -156,11 +159,45 @@
             align-items: center;
             gap: 12px;
             margin-bottom: 20px;
+            flex-wrap: wrap;
         }
 
         .search-group label {
             font-weight: bold;
             white-space: nowrap;
+        }
+
+        .search-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-left: auto;
+        }
+
+        .btn-copy-all {
+            background-color: var(--btn-copy);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            font-size: 0.9rem;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: background-color 0.2s, opacity 0.2s;
+            white-space: nowrap;
+        }
+
+        .btn-copy-all:hover {
+            background-color: #1e4f6e;
+        }
+
+        .btn-copy-all:disabled {
+            background-color: #b0c4de;
+            cursor: not-allowed;
+            opacity: 0.6;
         }
 
         .records-table {
@@ -184,24 +221,55 @@
         }
 
         .records-table td.col-time {
-            width: 80px;
+            width: 70px;
             text-align: center;
             font-weight: bold;
             color: var(--primary-color);
             background-color: #f2f7f4;
             border-right: 1px solid var(--border-color);
             white-space: nowrap;
-            /* 讓 Excel 貼上時保持文字格式，不被當作數字 */
-            mso-number-format: "\@";
         }
 
         .records-table td.col-content {
             background-color: #ffffff;
             white-space: pre-wrap;
             word-break: break-word;
-            /* 協助 Excel 識別換行樣式 */
-            mso-number-format: "\@";
         }
+
+        .records-table td.col-action {
+            width: 80px;
+            text-align: center;
+            background-color: #ffffff;
+            border-left: 1px solid var(--border-color);
+            white-space: nowrap;
+        }
+
+        .edit-textarea {
+            width: 100%;
+            height: 80px;
+            padding: 6px;
+            font-size: 0.95rem;
+            border: 1px solid var(--primary-color);
+            border-radius: 4px;
+            resize: vertical;
+        }
+
+        .btn-action {
+            padding: 6px 10px;
+            font-size: 0.85rem;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            color: white;
+            font-weight: bold;
+            margin: 2px 0;
+            display: block;
+            width: 100%;
+        }
+
+        .btn-action.btn-edit { background-color: var(--btn-edit); }
+        .btn-action.btn-save { background-color: var(--primary-color); }
+        .btn-action.btn-cancel { background-color: var(--btn-cancel); }
 
         .no-data {
             text-align: center;
@@ -237,6 +305,35 @@
 
         .toast.success {
             background-color: var(--primary-color);
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        .copy-icon {
+            font-size: 1.1rem;
+        }
+
+        @media (max-width: 500px) {
+            .search-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .search-actions {
+                margin-left: 0;
+                justify-content: flex-end;
+            }
+            .records-table td {
+                padding: 8px;
+                font-size: 0.9rem;
+            }
+            .col-time {
+                width: 55px;
+            }
+            .col-action {
+                width: 70px;
+            }
         }
     </style>
 </head>
@@ -279,19 +376,27 @@
             </div>
         </div>
 
-        <!-- 頁籤三：查詢 -->
+        <!-- 頁籤三：查詢與修改 -->
         <div id="query-tab" class="tab-content">
             <div class="search-group">
                 <label for="search-date">選擇日期：</label>
                 <input type="date" id="search-date" onchange="filterNotes()">
+                <div class="search-actions">
+                    <button id="btn-copy-all" class="btn-copy-all" onclick="copyAllToExcel()">
+                        <span class="copy-icon">📋</span> 複製當日全部
+                    </button>
+                </div>
             </div>
-            <div id="records-container"></div>
+            <div id="records-container" class="table-wrapper"></div>
         </div>
     </div>
 
     <script>
+        // ---------- 全局變量 ----------
         const API_URL = "https://goodland-api.errmartin3.workers.dev/";
+        let currentRecords = [];        // 儲存當前查詢的紀錄，供複製使用
 
+        // ---------- Toast 提示 ----------
         function showToast(message, type = 'success') {
             const toast = document.getElementById('toast');
             toast.textContent = message;
@@ -299,6 +404,7 @@
             setTimeout(() => { toast.className = 'toast'; }, 2000);
         }
 
+        // ---------- 頁籤切換 ----------
         function switchTab(evt, tabId) {
             document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
@@ -327,6 +433,7 @@
             }
         }
 
+        // ---------- 時間工具 ----------
         function getFormattedDateTime() {
             const now = new Date();
             const year = now.getFullYear();
@@ -337,13 +444,15 @@
 
             return {
                 date: `${year}-${month}-${day}`,
-                time: `${hours}${minutes}`, // 24小時制，不含冒號，例如：1430
+                time: `${hours}${minutes}`,
                 timestamp: now.getTime()
             };
         }
 
+        // ---------- 通用 POST ----------
         async function postRecord(recordData, btnElement, inputElement) {
             btnElement.disabled = true;
+            const originalText = btnElement.textContent;
             btnElement.textContent = "儲存中...";
 
             try {
@@ -364,10 +473,11 @@
                 showToast('連線錯誤', 'warning');
             } finally {
                 btnElement.disabled = false;
-                btnElement.textContent = "確認儲存";
+                btnElement.textContent = originalText;
             }
         }
 
+        // ---------- 即時新增 ----------
         function saveNote() {
             const inputElement = document.getElementById('note-input');
             const btnElement = document.getElementById('btn-save-note');
@@ -380,7 +490,7 @@
 
             const timeData = getFormattedDateTime();
             const newRecord = {
-                id: Date.now(),
+                id: Date.now().toString(),
                 date: timeData.date,
                 time: timeData.time,
                 content: content,
@@ -390,9 +500,10 @@
             postRecord(newRecord, btnElement, inputElement);
         }
 
+        // ---------- 補填 ----------
         function saveBackfillNote() {
             const dateInput = document.getElementById('backfill-date').value;
-            const timeInput = document.getElementById('backfill-time').value; // 格式通常為 HH:mm
+            const timeInput = document.getElementById('backfill-time').value;
             const contentInput = document.getElementById('backfill-note-input');
             const btnElement = document.getElementById('btn-save-backfill');
             const content = contentInput.value.trim();
@@ -402,12 +513,11 @@
                 return;
             }
 
-            // 將輸入的時間去掉冒號，確保統一格式為 HHmm
             const formattedTime = timeInput.replace(':', '');
             const targetDateTime = new Date(`${dateInput}T${timeInput}`);
 
             const newRecord = {
-                id: Date.now(),
+                id: Date.now().toString(),
                 date: dateInput,
                 time: formattedTime,
                 content: content,
@@ -417,13 +527,18 @@
             postRecord(newRecord, btnElement, contentInput);
         }
 
+        // ---------- 查詢與渲染 ----------
         async function filterNotes() {
             const selectedDate = document.getElementById('search-date').value;
             const container = document.getElementById('records-container');
+            const copyBtn = document.getElementById('btn-copy-all');
+
             container.innerHTML = '<div class="no-data">載入中...</div>';
+            copyBtn.disabled = true;
 
             if (!selectedDate) {
                 container.innerHTML = '<div class="no-data">請選擇查詢日期</div>';
+                currentRecords = [];
                 return;
             }
 
@@ -431,11 +546,16 @@
                 const res = await fetch(API_URL);
                 const notes = await res.json();
 
-                const filtered = notes.filter(note => note.date === selectedDate);
+                const notesArray = Array.isArray(notes) ? notes : [];
+
+                const filtered = notesArray.filter(note => note.date === selectedDate);
                 filtered.sort((a, b) => a.timestamp - b.timestamp);
+
+                currentRecords = filtered;
 
                 if (filtered.length === 0) {
                     container.innerHTML = '<div class="no-data">該日期無填寫紀錄</div>';
+                    copyBtn.disabled = true;
                     return;
                 }
 
@@ -445,13 +565,15 @@
 
                 filtered.forEach(item => {
                     const tr = document.createElement('tr');
-                    
-                    // 格式化時間：若舊資料有冒號，在此一併替換移除
+                    tr.id = `row-${item.id}`;
                     const displayTime = String(item.time || '').replace(':', '');
 
                     tr.innerHTML = `
                         <td class="col-time">${displayTime}</td>
-                        <td class="col-content">${escapeHtml(item.content)}</td>
+                        <td class="col-content" id="content-${item.id}">${escapeHtml(item.content)}</td>
+                        <td class="col-action" id="action-${item.id}">
+                            <button class="btn-action btn-edit" onclick="enableEdit('${item.id}')">修改</button>
+                        </td>
                     `;
                     tbody.appendChild(tr);
                 });
@@ -459,13 +581,112 @@
                 table.appendChild(tbody);
                 container.innerHTML = '';
                 container.appendChild(table);
+                copyBtn.disabled = false;
+
             } catch (error) {
                 console.error(error);
                 container.innerHTML = '<div class="no-data">資料載入失敗</div>';
+                currentRecords = [];
+                copyBtn.disabled = true;
             }
         }
 
+        // ---------- 編輯相關 ----------
+        function enableEdit(id) {
+            const contentCell = document.getElementById(`content-${id}`);
+            const actionCell = document.getElementById(`action-${id}`);
+
+            const currentContent = contentCell.innerText;
+            contentCell.dataset.originalContent = currentContent;
+
+            contentCell.innerHTML = `<textarea id="edit-input-${id}" class="edit-textarea"></textarea>`;
+            document.getElementById(`edit-input-${id}`).value = currentContent;
+
+            actionCell.innerHTML = `
+                <button class="btn-action btn-save" onclick="updateNote('${id}')">儲存</button>
+                <button class="btn-action btn-cancel" onclick="cancelEdit('${id}')">取消</button>
+            `;
+        }
+
+        function cancelEdit(id) {
+            const contentCell = document.getElementById(`content-${id}`);
+            const actionCell = document.getElementById(`action-${id}`);
+            const originalContent = contentCell.dataset.originalContent;
+
+            contentCell.innerHTML = escapeHtml(originalContent);
+            actionCell.innerHTML = `
+                <button class="btn-action btn-edit" onclick="enableEdit('${id}')">修改</button>
+            `;
+        }
+
+        async function updateNote(id) {
+            const editInput = document.getElementById(`edit-input-${id}`);
+            const newContent = editInput.value.trim();
+
+            if (!newContent) {
+                showToast('內容不可為空！', 'warning');
+                return;
+            }
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        id: id,
+                        content: newContent
+                    })
+                });
+
+                if (response.ok) {
+                    showToast('修改成功！', 'success');
+                    filterNotes();
+                } else {
+                    showToast('修改失敗，請再試一次', 'warning');
+                }
+            } catch (error) {
+                console.error(error);
+                showToast('連線錯誤', 'warning');
+            }
+        }
+
+        // ---------- 複製當日全部（只有資料，無標題列） ----------
+        function copyAllToExcel() {
+            if (!currentRecords || currentRecords.length === 0) {
+                showToast('沒有紀錄可以複製', 'warning');
+                return;
+            }
+
+            // 依時間排序
+            const sorted = [...currentRecords].sort((a, b) => a.timestamp - b.timestamp);
+
+            // 直接從第一筆資料開始，不加入標題列
+            const rows = [];
+
+            sorted.forEach(item => {
+                // 顯示時間：移除冒號，例如 0930
+                const displayTime = String(item.time || '').replace(':', '');
+                // 清理內容：將換行替換為空格，避免破壞 TSV 結構
+                const cleanContent = (item.content || '').replace(/[\r\n]+/g, ' ').trim();
+                rows.push([displayTime, cleanContent]);
+            });
+
+            // 轉換為 TSV (以 \t 分隔欄位，\n 分隔列)
+            const tsvContent = rows.map(row => row.join('\t')).join('\n');
+
+            navigator.clipboard.writeText(tsvContent)
+                .then(() => {
+                    showToast(`已複製 ${sorted.length} 筆紀錄（時間＋美地）`, 'success');
+                })
+                .catch(err => {
+                    console.error('複製失敗:', err);
+                    showToast('複製失敗，請手動選取', 'warning');
+                });
+        }
+
+        // ---------- HTML 跳脫 ----------
         function escapeHtml(text) {
+            if (!text) return '';
             return text
                 .replace(/&/g, "&amp;")
                 .replace(/</g, "&lt;")
@@ -473,6 +694,12 @@
                 .replace(/"/g, "&quot;")
                 .replace(/'/g, "&#039;");
         }
+
+        // ---------- 初始化 ----------
+        window.addEventListener('DOMContentLoaded', () => {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('search-date').value = today;
+        });
     </script>
 </body>
 </html>
