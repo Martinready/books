@@ -93,8 +93,8 @@
       {
         "id": "id_9r6l3fcbfmvbrg8la",
         "title": "第四篇　以彀多的考慮、禱告、和勞苦實行排",
-        "read": false,
-        "readAt": null,
+        "read": true,
+        "readAt": "2026-10-17T02:11:50.789Z",
         "note": ""
       },
       {
@@ -246,7 +246,7 @@
       }
     ],
     "readingSessions": [],
-    "updatedAt": "2026-10-17T02:11:49.442Z"
+    "updatedAt": "2026-10-17T02:11:50.789Z"
   },
   {
     "title": "活力排",
