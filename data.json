@@ -470,8 +470,8 @@
       {
         "id": "id_7barhwks9mvbrg8la",
         "title": "第九篇　在召會生活中的活力排（三）",
-        "read": false,
-        "readAt": null,
+        "read": true,
+        "readAt": "2026-10-17T12:41:31.006Z",
         "note": ""
       },
       {
@@ -588,7 +588,7 @@
       }
     ],
     "readingSessions": [],
-    "updatedAt": "2026-10-17T02:27:42.333Z"
+    "updatedAt": "2026-10-17T12:41:31.006Z"
   },
   {
     "title": "活力排",
