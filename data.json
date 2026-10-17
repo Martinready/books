@@ -4,10 +4,32 @@
     "title": "在大專校園傳揚福音",
     "date": "",
     "purchased": false,
-    "chapters": [],
+    "chapters": [
+      {
+        "id": "id_4ef8bupommvbrkzcs",
+        "title": "第一章　那靈和身體",
+        "read": false,
+        "readAt": null,
+        "note": ""
+      },
+      {
+        "id": "id_iwse4zfaomvbrkzcs",
+        "title": "第二章　禱告、話和家",
+        "read": false,
+        "readAt": null,
+        "note": ""
+      },
+      {
+        "id": "id_kfnzdw7o9mvbrkzcs",
+        "title": "第三章　正確的日常生活與廣博的愛",
+        "read": false,
+        "readAt": null,
+        "note": ""
+      }
+    ],
     "readingSessions": [],
     "createdAt": "2026-10-17T02:15:07.992Z",
-    "updatedAt": "2026-10-17T02:15:07.992Z"
+    "updatedAt": "2026-10-17T02:15:19.036Z"
   },
   {
     "title": "那靈與基督的身體",
