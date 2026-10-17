@@ -8,8 +8,8 @@
       {
         "id": "id_4ef8bupommvbrkzcs",
         "title": "第一章　那靈和身體",
-        "read": false,
-        "readAt": null,
+        "read": true,
+        "readAt": "2026-10-17T02:15:36.035Z",
         "note": ""
       },
       {
@@ -29,7 +29,7 @@
     ],
     "readingSessions": [],
     "createdAt": "2026-10-17T02:15:07.992Z",
-    "updatedAt": "2026-10-17T02:15:19.036Z"
+    "updatedAt": "2026-10-17T02:15:36.035Z"
   },
   {
     "title": "那靈與基督的身體",
