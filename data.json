@@ -114,8 +114,8 @@
       {
         "id": "id_vzjgvk6u1mvbrg8la",
         "title": "第七篇　在召會生活中的活力排（一）",
-        "read": false,
-        "readAt": null,
+        "read": true,
+        "readAt": "2026-10-17T02:11:56.779Z",
         "note": ""
       },
       {
@@ -246,7 +246,7 @@
       }
     ],
     "readingSessions": [],
-    "updatedAt": "2026-10-17T02:11:54.064Z"
+    "updatedAt": "2026-10-17T02:11:56.779Z"
   },
   {
     "title": "活力排",
