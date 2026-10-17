@@ -463,8 +463,8 @@
       {
         "id": "id_s6r9dr85imvbrg8la",
         "title": "第八篇　在召會生活中的活力排（二）",
-        "read": false,
-        "readAt": null,
+        "read": true,
+        "readAt": "2026-10-17T02:27:42.333Z",
         "note": ""
       },
       {
@@ -588,7 +588,7 @@
       }
     ],
     "readingSessions": [],
-    "updatedAt": "2026-10-17T02:12:00.663Z"
+    "updatedAt": "2026-10-17T02:27:42.333Z"
   },
   {
     "title": "活力排",
