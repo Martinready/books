@@ -36,8 +36,8 @@
       {
         "id": "id_ni6w74yfymvbrma9e",
         "title": "第五篇　關於文字服事的交通",
-        "read": false,
-        "readAt": null,
+        "read": true,
+        "readAt": "2026-10-17T02:16:35.471Z",
         "note": ""
       },
       {
@@ -99,7 +99,7 @@
     ],
     "readingSessions": [],
     "createdAt": "2026-10-17T02:16:03.333Z",
-    "updatedAt": "2026-10-17T02:16:34.393Z"
+    "updatedAt": "2026-10-17T02:16:35.471Z"
   },
   {
     "id": "id_l0up47blemvbrkqi5",
