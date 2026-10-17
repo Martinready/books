@@ -107,8 +107,8 @@
       {
         "id": "id_eczdq9vm0mvbrg8la",
         "title": "第六篇　在正確的安排和領導之下實行排",
-        "read": false,
-        "readAt": null,
+        "read": true,
+        "readAt": "2026-10-17T02:12:00.663Z",
         "note": ""
       },
       {
@@ -246,7 +246,7 @@
       }
     ],
     "readingSessions": [],
-    "updatedAt": "2026-10-17T02:11:56.779Z"
+    "updatedAt": "2026-10-17T02:12:00.663Z"
   },
   {
     "title": "活力排",
