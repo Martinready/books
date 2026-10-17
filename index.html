@@ -3,32 +3,68 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>圖書搜尋系統</title>
+  <title>個人藏書與篇章閱讀進度追蹤系統</title>
   <style>
+    :root {
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --success: #16a34a;
+      --warning: #d97706;
+      --danger: #ef4444;
+      --bg-color: #f1f5f9;
+      --card-bg: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border-color: #cbd5e1;
+    }
     * {
       box-sizing: border-box;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     }
     body {
-      background-color: #f1f5f9;
+      background-color: var(--bg-color);
       margin: 0;
-      padding: 40px 16px;
+      padding: 30px 16px;
       display: flex;
       justify-content: center;
+      color: var(--text-main);
     }
     .container {
       width: 100%;
-      max-width: 850px;
-      background: #ffffff;
+      max-width: 950px;
+      background: var(--card-bg);
       padding: 28px;
       border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
     }
     h1 {
-      margin: 0 0 24px 0;
-      color: #0f172a;
+      margin: 0 0 20px 0;
+      color: var(--text-main);
       font-size: 1.6rem;
       text-align: center;
+    }
+    .stats-bar {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .stat-card {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      padding: 12px;
+      border-radius: 8px;
+      text-align: center;
+    }
+    .stat-card .number {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-top: 4px;
+    }
+    .stat-card .label {
+      font-size: 0.85rem;
+      color: var(--text-muted);
     }
     .section {
       margin-bottom: 20px;
@@ -42,14 +78,14 @@
     }
     .form-grid {
       display: grid;
-      grid-template-columns: 2fr 1.5fr 1fr auto;
+      grid-template-columns: 2fr 1fr auto;
       gap: 10px;
       align-items: center;
     }
-    input[type="text"], input[type="date"], input[type="number"], textarea {
+    input[type="text"], input[type="date"], textarea {
       width: 100%;
       padding: 9px 12px;
-      border: 1px solid #cbd5e1;
+      border: 1px solid var(--border-color);
       border-radius: 6px;
       font-size: 0.95rem;
       outline: none;
@@ -57,16 +93,16 @@
     }
     textarea {
       resize: vertical;
-      min-height: 100px;
+      min-height: 80px;
       line-height: 1.5;
     }
     input:focus, textarea:focus {
-      border-color: #2563eb;
+      border-color: var(--primary);
       box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
     }
     button {
       padding: 9px 16px;
-      background-color: #2563eb;
+      background-color: var(--primary);
       color: white;
       border: none;
       border-radius: 6px;
@@ -76,10 +112,10 @@
       transition: background-color 0.2s;
     }
     button:hover {
-      background-color: #1d4ed8;
+      background-color: var(--primary-hover);
     }
     button:disabled {
-      background-color: #cbd5e1;
+      background-color: var(--border-color);
       cursor: not-allowed;
     }
     .divider {
@@ -87,84 +123,156 @@
       border-top: 1px solid #e2e8f0;
       margin: 24px 0;
     }
-    
-    /* 表格樣式 */
-    .table-container {
-      overflow-x: auto;
+
+    /* 書籍列表與卡片樣式 */
+    .book-card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 12px;
+      transition: all 0.2s;
     }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      text-align: left;
-      font-size: 0.95rem;
+    .book-card:hover {
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
     }
-    th, td {
-      padding: 12px 14px;
-      border-bottom: 1px solid #e2e8f0;
-    }
-    th {
-      background-color: #f8fafc;
-      color: #475569;
-      font-weight: 600;
-    }
-    tr:hover {
-      background-color: #f8fafc;
-    }
-    .action-btns {
+    .book-header {
       display: flex;
-      gap: 6px;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      flex-wrap: wrap;
     }
-    .edit-btn {
-      background-color: #f59e0b;
-      padding: 5px 10px;
+    .book-title-area {
+      flex: 1;
+      cursor: pointer;
+    }
+    .book-title-area h3 {
+      margin: 0 0 6px 0;
+      color: var(--primary);
+      font-size: 1.15rem;
+    }
+    .book-meta {
       font-size: 0.85rem;
+      color: var(--text-muted);
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
     }
-    .edit-btn:hover {
-      background-color: #d97706;
+    .book-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
     }
-    .delete-btn {
-      background-color: #ef4444;
-      padding: 5px 10px;
+    
+    /* 進度條 */
+    .progress-container {
+      background: #e2e8f0;
+      border-radius: 4px;
+      height: 8px;
+      width: 100%;
+      margin: 12px 0 8px 0;
+      overflow: hidden;
+    }
+    .progress-bar {
+      background: var(--success);
+      height: 100%;
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+    .progress-info {
+      display: flex;
+      justify-content: space-between;
       font-size: 0.85rem;
-    }
-    .delete-btn:hover {
-      background-color: #dc2626;
-    }
-    .empty-msg {
-      text-align: center;
-      color: #94a3b8;
-      padding: 24px;
-    }
-    .badge {
-      font-size: 0.85rem;
-      color: #64748b;
-      font-weight: normal;
-      margin-left: 6px;
+      color: var(--text-muted);
     }
 
-    /* 表格內的勾選框與狀態 */
-    .table-checkbox {
-      width: 18px;
-      height: 18px;
-      cursor: pointer;
-      vertical-align: middle;
-    }
-    .status-msg {
-      font-size: 0.75rem;
+    /* 狀態標籤 */
+    .status-pill {
       display: inline-block;
-      margin-left: 4px;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 600;
     }
-    .status-waiting { color: #d97706; }
-    .status-saving { color: #2563eb; }
-    .status-success { color: #16a34a; }
+    .status-not-started { background: #f1f5f9; color: #64748b; }
+    .status-reading { background: #fef3c7; color: #d97706; }
+    .status-finished { background: #dcfce7; color: #16a34a; }
+
+    /* 展開的篇章管理區塊 */
+    .chapter-section {
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px dashed #e2e8f0;
+      display: none;
+    }
+    .chapter-section.active {
+      display: block;
+    }
+    .chapter-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 10px;
+      background: #f8fafc;
+      border-radius: 6px;
+      margin-bottom: 6px;
+      gap: 8px;
+    }
+    .chapter-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: 1;
+    }
+    .chapter-title {
+      font-size: 0.95rem;
+    }
+    .chapter-title.completed {
+      text-decoration: line-through;
+      color: var(--text-muted);
+    }
+    
+    /* 智慧搜尋雙區樣式 */
+    .search-results-wrapper {
+      margin-top: 16px;
+    }
+    .search-section-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #334155;
+      margin: 16px 0 8px 0;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      border-left: 4px solid var(--primary);
+      padding-left: 8px;
+    }
+    .search-result-card {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      padding: 12px 16px;
+      border-radius: 6px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .search-result-card:hover {
+      background: #f1f5f9;
+      border-color: var(--primary);
+    }
 
     /* 分頁元件樣式 */
     .pagination-container {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-top: 20px;
-      padding-top: 12px;
+      margin-top: 24px;
+      padding-top: 16px;
+      border-top: 1px solid #e2e8f0;
     }
     .page-btn {
       background-color: #ffffff;
@@ -175,193 +283,172 @@
     }
     .page-btn:hover:not(:disabled) {
       background-color: #f1f5f9;
-      color: #2563eb;
-      border-color: #2563eb;
+      color: var(--primary);
+      border-color: var(--primary);
     }
     .page-info {
       font-size: 0.9rem;
-      color: #64748b;
+      color: var(--text-muted);
       font-weight: 500;
     }
 
-    /* 彈出視窗 Modal 樣式 */
-    .modal-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      background: rgba(15, 23, 42, 0.5);
-      backdrop-filter: blur(4px);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.2s ease;
-    }
-    .modal-overlay.active {
-      opacity: 1;
-      pointer-events: auto;
-    }
-    .modal-card {
-      background: #ffffff;
+    /* 按鈕變體 */
+    .btn-sm { padding: 4px 10px; font-size: 0.8rem; }
+    .btn-warning { background-color: #f59e0b; }
+    .btn-warning:hover { background-color: #d97706; }
+    .btn-danger { background-color: var(--danger); }
+    .btn-danger:hover { background-color: #dc2626; }
+    .btn-secondary { background-color: #64748b; }
+    .btn-secondary:hover { background-color: #475569; }
+
+    .empty-msg {
+      text-align: center;
+      color: var(--text-muted);
       padding: 24px;
-      border-radius: 12px;
-      width: 90%;
-      max-width: 500px;
-      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-      transform: translateY(-10px);
-      transition: transform 0.2s ease;
     }
-    .modal-overlay.active .modal-card {
-      transform: translateY(0);
-    }
-    .modal-title {
-      font-size: 1.25rem;
-      font-weight: 700;
-      color: #0f172a;
-      margin-bottom: 16px;
-    }
-    .modal-body .form-group {
-      margin-bottom: 14px;
-    }
-    .checkbox-group {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      cursor: pointer;
-      user-select: none;
-      padding: 6px 0;
-    }
-    .checkbox-group input[type="checkbox"] {
-      width: 18px;
-      height: 18px;
-      cursor: pointer;
-    }
-    .modal-footer {
-      display: flex;
-      justify-content: flex-end;
-      gap: 8px;
-      margin-top: 20px;
-    }
-    .cancel-btn {
-      background-color: #94a3b8;
-    }
-    .cancel-btn:hover {
-      background-color: #64748b;
+    .badge {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      font-weight: normal;
+      margin-left: 6px;
     }
 
+    /* 彈出視窗 */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(15, 23, 42, 0.5);
+      backdrop-filter: blur(4px);
+      display: flex; justify-content: center; align-items: center;
+      z-index: 1000;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+    .modal-overlay.active { opacity: 1; pointer-events: auto; }
+    .modal-card {
+      background: #ffffff; padding: 24px; border-radius: 12px;
+      width: 90%; max-width: 550px;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+      transform: translateY(-10px); transition: transform 0.2s ease;
+      max-height: 90vh; overflow-y: auto;
+    }
+    .modal-overlay.active .modal-card { transform: translateY(0); }
+    .modal-title { font-size: 1.25rem; font-weight: 700; color: var(--text-main); margin-bottom: 16px; }
+    .modal-body .form-group { margin-bottom: 14px; }
+    .modal-footer { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; }
+
     @media (max-width: 600px) {
-      .form-grid {
-        grid-template-columns: 1fr;
-      }
+      .form-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
 
 <div class="container">
-  <h1>📚 圖書搜尋系統</h1>
+  <h1>📚 個人藏書與篇章閱讀進度追蹤系統</h1>
+
+  <!-- 統計摘要列 -->
+  <div class="stats-bar" id="statsBar">
+    <div class="stat-card"><div class="label">全部藏書</div><div class="number" id="statTotal">0</div></div>
+    <div class="stat-card"><div class="label">已購買</div><div class="number" id="statPurchased">0</div></div>
+    <div class="stat-card"><div class="label">閱讀中</div><div class="number" id="statReading">0</div></div>
+    <div class="stat-card"><div class="label">已讀完</div><div class="number" id="statFinished">0</div></div>
+  </div>
 
   <!-- 新增書籍區塊 -->
   <div class="section">
     <label>新增書籍</label>
     <div class="form-grid">
-      <input type="text" id="bookTitle" placeholder="書名">
-      <input type="date" id="bookDate" title="出版日期">
-      <input type="number" id="bookReads" placeholder="閱讀次數" min="0" value="0">
-      <button id="addBtn" onclick="addBook()">新增</button>
+      <input type="text" id="bookTitleInput" placeholder="請輸入書名">
+      <input type="date" id="bookDateInput" title="出版日期">
+      <button id="addBookBtn" onclick="addNewBook()">新增書籍</button>
     </div>
   </div>
 
   <hr class="divider">
 
-  <!-- 搜尋區塊 -->
+  <!-- 智慧搜尋區塊 -->
   <div class="section">
-    <label for="searchInput">關鍵字搜尋 <span id="countBadge" class="badge"></span></label>
-    <input type="text" id="searchInput" placeholder="搜尋書名、出版日期或目錄關鍵字..." oninput="onSearchInput()">
+    <label for="searchInput">智慧搜尋 <span id="countBadge" class="badge"></span></label>
+    <input type="text" id="searchInput" placeholder="輸入關鍵字搜尋書名、篇名..." oninput="onSearchInput()">
   </div>
 
-  <!-- 表格展示區塊 -->
-  <div class="table-container">
-    <table>
-      <thead>
-        <tr>
-          <th>書名</th>
-          <th style="width: 120px;">出版日期</th>
-          <th style="width: 90px; text-align: center;">閱讀次數</th>
-          <th style="width: 110px; text-align: center;">已購買</th>
-          <th style="width: 120px; text-align: center;">操作</th>
-        </tr>
-      </thead>
-      <tbody id="bookTableBody">
-        <tr><td colspan="5" class="empty-msg">讀取 GitHub 資料中...</td></tr>
-      </tbody>
-    </table>
+  <!-- 書籍與雙區搜尋結果展示區 -->
+  <div id="mainContentArea">
+    <div class="empty-msg">讀取 GitHub 資料中...</div>
   </div>
 
   <!-- 分頁控制區塊 -->
-  <div class="pagination-container" id="paginationBox">
+  <div class="pagination-container" id="paginationBox" style="display: none;">
     <button id="prevBtn" class="page-btn" onclick="changePage(-1)">← 上一頁</button>
     <span id="pageInfo" class="page-info">第 1 / 1 頁</span>
     <button id="nextBtn" class="page-btn" onclick="changePage(1)">下一頁 →</button>
   </div>
 </div>
 
-<!-- 修改資訊彈出視窗 (Modal) -->
-<div id="editModal" class="modal-overlay">
+<!-- 修改書籍基本資料 Modal -->
+<div id="editBookModal" class="modal-overlay">
   <div class="modal-card">
-    <div class="modal-title">✏️ 修改書籍與目錄資訊</div>
+    <div class="modal-title">✏️ 修改書籍資訊</div>
     <div class="modal-body">
-      <input type="hidden" id="editOldTitle">
+      <input type="hidden" id="editBookId">
       <div class="form-group">
-        <label for="editTitle">書名</label>
-        <input type="text" id="editTitle">
+        <label for="editBookTitle">書名</label>
+        <input type="text" id="editBookTitle">
       </div>
       <div class="form-group">
-        <label for="editDate">出版日期</label>
-        <input type="date" id="editDate">
+        <label for="editBookDate">出版日期</label>
+        <input type="date" id="editBookDate">
       </div>
       <div class="form-group">
-        <label for="editReads">閱讀次數</label>
-        <input type="number" id="editReads" min="0">
-      </div>
-      <div class="form-group">
-        <label class="checkbox-group">
-          <input type="checkbox" id="editPurchased">
+        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+          <input type="checkbox" id="editBookPurchased" style="width: 18px; height: 18px;">
           <span>已購買此書</span>
         </label>
       </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeEditModal()">取消</button>
+      <button onclick="saveBookEdit()">儲存修改</button>
+    </div>
+  </div>
+</div>
+
+<!-- 批次新增篇章 Modal -->
+<div id="batchChapterModal" class="modal-overlay">
+  <div class="modal-card">
+    <div class="modal-title">📑 批次新增篇章</div>
+    <div class="modal-body">
+      <input type="hidden" id="batchBookId">
       <div class="form-group">
-        <label for="editToc">書籍目錄 / 簡介</label>
-        <textarea id="editToc" placeholder="可在這裡輸入第一章、第二章或目錄內容..."></textarea>
+        <label>篇名列表（每行一篇）</label>
+        <textarea id="batchChapterText" placeholder="第一章 緒論&#10;第二章 核心架構&#10;第三章 結論"></textarea>
       </div>
     </div>
     <div class="modal-footer">
-      <button class="cancel-btn" onclick="closeEditModal()">取消</button>
-      <button id="saveEditBtn" onclick="saveEdit()">儲存修改</button>
+      <button class="btn-secondary" onclick="closeBatchModal()">取消</button>
+      <button onclick="saveBatchChapters()">確認新增</button>
     </div>
   </div>
 </div>
 
 <script>
   const API_URL = "https://github-books-api.errmartin3.workers.dev";
-  let allBooksCache = [];
-  
-  // 分頁與延遲儲存控制變數
+  let booksCache = [];
+  let expandedBookIds = new Set(); // 記錄展開中的書籍 ID
+
+  // 分頁控制變數
   let currentPage = 1;
   const itemsPerPage = 10;
-  
-  // 延遲儲存 (Debounce) 相關變數
-  let pendingSaveTimers = {}; // 紀錄每本書的倒數計時器
-  let pendingChanges = {};    // 紀錄有待儲存變更的書籍
 
-  // 1. 載入書籍資料
+  function generateId() {
+    return 'id_' + Math.random().toString(36).substr(2, 9) + Date.now().toString(36);
+  }
+
+  // 1. 載入資料 (含舊格式相容轉譯)
   async function fetchBooks() {
-    const tbody = document.getElementById('bookTableBody');
-    tbody.innerHTML = '<tr><td colspan="5" class="empty-msg">讀取 GitHub 資料中...</td></tr>';
+    const area = document.getElementById('mainContentArea');
+    area.innerHTML = '<div class="empty-msg">讀取 GitHub 資料中...</div>';
 
     try {
       const res = await fetch(API_URL);
@@ -369,318 +456,598 @@
       
       const rawData = await res.json();
       
-      allBooksCache = rawData.map(item => {
+      booksCache = rawData.map(item => {
         if (typeof item === 'string') {
-          return { title: item, date: '-', reads: 0, toc: '', purchased: false };
+          return {
+            id: generateId(),
+            title: item,
+            date: '',
+            purchased: false,
+            chapters: [],
+            readingSessions: [],
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+          };
         }
+
+        const chapters = (item.chapters || []).map(ch => ({
+          id: ch.id || generateId(),
+          title: ch.title || '未命名篇章',
+          read: Boolean(ch.read),
+          readAt: ch.readAt || null,
+          note: ch.note || ''
+        }));
+
+        let finalChapters = chapters;
+        if (finalChapters.length === 0 && item.toc && typeof item.toc === 'string' && item.toc.trim() !== '') {
+          finalChapters = item.toc.split('\n').filter(line => line.trim() !== '').map(line => ({
+            id: generateId(),
+            title: line.trim(),
+            read: false,
+            readAt: null,
+            note: ''
+          }));
+        }
+
         return {
-          title: item.title || '未命名',
-          date: item.date || '-',
-          reads: item.reads !== undefined ? item.reads : 0,
-          toc: item.toc || '',
-          purchased: Boolean(item.purchased)
+          id: item.id || generateId(),
+          title: item.title || '未命名書籍',
+          date: item.date || '',
+          purchased: Boolean(item.purchased),
+          chapters: finalChapters,
+          readingSessions: Array.isArray(item.readingSessions) ? item.readingSessions : 
+            (item.reads > 0 ? Array(item.reads).fill({ id: generateId(), completedAt: new Date().toISOString() }) : []),
+          createdAt: item.createdAt || new Date().toISOString(),
+          updatedAt: item.updatedAt || new Date().toISOString()
         };
       });
 
-      renderTable();
+      renderApp();
     } catch (err) {
-      console.error("無法取得資料:", err);
-      tbody.innerHTML = '<tr><td colspan="5" class="empty-msg" style="color:#ef4444;">讀取資料失敗，請檢查 API 設定</td></tr>';
+      console.error("取得資料失敗:", err);
+      area.innerHTML = '<div class="empty-msg" style="color:var(--danger);">讀取資料失敗，請檢查 API 或網路連線</div>';
     }
   }
 
-  // 2. 搜尋時重設至第一頁
-  function onSearchInput() {
-    currentPage = 1;
-    renderTable();
-  }
-
-  // 3. 切換頁碼
-  function changePage(delta) {
-    currentPage += delta;
-    renderTable();
-  }
-
-  // 4. 渲染表格與處理分頁
-  function renderTable() {
-    const keyword = document.getElementById('searchInput').value.toLowerCase().trim();
-    const tbody = document.getElementById('bookTableBody');
-    const countBadge = document.getElementById('countBadge');
-
-    const filtered = allBooksCache.filter(b => 
-      b.title.toLowerCase().includes(keyword) || 
-      b.date.toLowerCase().includes(keyword) ||
-      b.toc.toLowerCase().includes(keyword)
-    );
-
-    const totalItems = filtered.length;
-    const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
-
-    if (currentPage > totalPages) currentPage = totalPages;
-    if (currentPage < 1) currentPage = 1;
-
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const paginatedBooks = filtered.slice(startIndex, startIndex + itemsPerPage);
-
-    countBadge.textContent = `(顯示 ${totalItems} 本中的第 ${startIndex + 1}-${Math.min(startIndex + itemsPerPage, totalItems)} 本)`;
-    tbody.innerHTML = '';
-
-    if (totalItems === 0) {
-      tbody.innerHTML = '<tr><td colspan="5" class="empty-msg">未找到符合條件的書籍</td></tr>';
-      document.getElementById('paginationBox').style.display = 'none';
-      return;
-    }
-
-    document.getElementById('paginationBox').style.display = 'flex';
-
-    paginatedBooks.forEach(book => {
-      const tr = document.createElement('tr');
-      const originalIndex = allBooksCache.indexOf(book);
-
-      tr.innerHTML = `
-        <td><strong>${escapeHtml(book.title)}</strong></td>
-        <td>${escapeHtml(book.date)}</td>
-        <td style="text-align: center;">${book.reads} 次</td>
-        <td style="text-align: center;">
-          <input type="checkbox" class="table-checkbox" 
-            ${book.purchased ? 'checked' : ''} 
-            onchange="debouncedTogglePurchased(${originalIndex}, this.checked)">
-          <span id="status-${originalIndex}"></span>
-        </td>
-        <td style="text-align: center;">
-          <div class="action-btns" style="justify-content: center;">
-            <button class="edit-btn" onclick="handleEditClick(${originalIndex})">修改</button>
-            <button class="delete-btn" onclick="handleDeleteClick('${escapeJsString(book.title)}')">刪除</button>
-          </div>
-        </td>
-      `;
-      tbody.appendChild(tr);
-    });
-
-    document.getElementById('pageInfo').textContent = `第 ${currentPage} / ${totalPages} 頁`;
-    document.getElementById('prevBtn').disabled = (currentPage === 1);
-    document.getElementById('nextBtn').disabled = (currentPage === totalPages);
-  }
-
-  // 5. 帶有 1.5 秒延遲 (Debounce) 的勾選處理
-  function debouncedTogglePurchased(index, newPurchasedState) {
-    const book = allBooksCache[index];
-    if (!book) return;
-
-    // 1. 畫面立刻更新（無卡頓感）
-    book.purchased = newPurchasedState;
-
-    // 2. 顯示「等待儲存」提示
-    updateStatusText(index, '<span class="status-msg status-waiting">等待儲存...</span>');
-
-    // 3. 清除舊的計時器（如果在 1.5 秒內又點擊，重新計算 1.5 秒）
-    if (pendingSaveTimers[book.title]) {
-      clearTimeout(pendingSaveTimers[book.title]);
-    }
-    pendingChanges[book.title] = book;
-
-    // 4. 設定 1.5 秒後自動發送 API
-    pendingSaveTimers[book.title] = setTimeout(() => {
-      executeSave(book.title, index);
-    }, 1500);
-  }
-
-  // 真正發送 API 到 Cloudflare Worker 儲存
-  async function executeSave(bookTitle, index) {
-    const book = pendingChanges[bookTitle];
-    if (!book) return;
-
-    delete pendingSaveTimers[bookTitle];
-    updateStatusText(index, '<span class="status-msg status-saving">儲存中...</span>');
-
+  // 2. 同步資料到 Cloudflare Worker
+  async function syncToCloud(updatedBook) {
     try {
       const res = await fetch(API_URL, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          oldTitle: book.title,
-          title: book.title,
-          date: book.date === '-' ? '' : book.date,
-          reads: book.reads,
-          toc: book.toc,
-          purchased: book.purchased
+          id: updatedBook.id,
+          oldTitle: updatedBook.title,
+          title: updatedBook.title,
+          date: updatedBook.date,
+          purchased: updatedBook.purchased,
+          chapters: updatedBook.chapters,
+          readingSessions: updatedBook.readingSessions,
+          updatedAt: new Date().toISOString()
         })
       });
-
-      if (!res.ok) throw new Error("儲存失敗");
-
-      delete pendingChanges[bookTitle];
-      updateStatusText(index, '<span class="status-msg status-success">已儲存</span>');
-      
-      // 1.5 秒後自動隱藏「已儲存」字樣
-      setTimeout(() => {
-        updateStatusText(index, '');
-      }, 1500);
-
+      if (!res.ok) throw new Error("同步失敗");
+      return true;
     } catch (err) {
-      console.error("更新失敗:", err);
-      alert(`「${book.title}」儲存失敗，請檢查連線！`);
-      updateStatusText(index, '<span class="status-msg" style="color:#ef4444;">失敗</span>');
+      console.error("雲端同步錯誤:", err);
+      alert("儲存至雲端失敗，請稍後再試！");
+      return false;
     }
   }
 
-  // 強制立刻同步所有尚在等待儲存的項目（防止開啟修改視窗或刪除時產生版本衝突）
-  async function flushPendingSaves() {
-    const pendingTitles = Object.keys(pendingChanges);
-    for (const title of pendingTitles) {
-      if (pendingSaveTimers[title]) {
-        clearTimeout(pendingSaveTimers[title]);
+  // 3. 計算閱讀狀態與進度
+  function calculateBookStatus(book) {
+    const total = book.chapters.length;
+    if (total === 0) return { status: 'not-started', label: '尚未開始', percent: 0, readCount: 0, total: 0 };
+    
+    const readCount = book.chapters.filter(ch => ch.read).length;
+    const percent = Math.round((readCount / total) * 100);
+
+    let status = 'not-started';
+    let label = '尚未開始';
+
+    if (readCount === 0) {
+      status = 'not-started';
+      label = '尚未開始';
+    } else if (readCount === total) {
+      status = 'finished';
+      label = '已讀完';
+    } else {
+      status = 'reading';
+      label = '閱讀中';
+    }
+
+    return { status, label, percent, readCount, total };
+  }
+
+  // 4. 搜尋時重設至第一頁
+  function onSearchInput() {
+    currentPage = 1;
+    renderApp();
+  }
+
+  // 5. 切換分頁
+  function changePage(delta) {
+    currentPage += delta;
+    renderApp();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // 6. 渲染主介面（含 10 筆分頁與智慧雙區搜尋）
+  function renderApp() {
+    const keywordInput = document.getElementById('searchInput');
+    const keyword = keywordInput ? keywordInput.value.toLowerCase().trim() : '';
+    const area = document.getElementById('mainContentArea');
+    const paginationBox = document.getElementById('paginationBox');
+    
+    // 計算整體統計
+    let totalBooks = booksCache.length;
+    let purchasedBooks = booksCache.filter(b => b.purchased).length;
+    let readingBooks = 0;
+    let finishedBooks = 0;
+
+    booksCache.forEach(b => {
+      const st = calculateBookStatus(b);
+      if (st.status === 'reading') readingBooks++;
+      if (st.status === 'finished') finishedBooks++;
+    });
+
+    document.getElementById('statTotal').textContent = totalBooks;
+    document.getElementById('statPurchased').textContent = purchasedBooks;
+    document.getElementById('statReading').textContent = readingBooks;
+    document.getElementById('statFinished').textContent = finishedBooks;
+
+    if (!keyword) {
+      // 一般藏書列表顯示（套用每頁 10 筆分頁）
+      if (totalBooks === 0) {
+        area.innerHTML = '<div class="empty-msg">目前沒有任何藏書，請從上方新增書籍。</div>';
+        document.getElementById('countBadge').textContent = '';
+        paginationBox.style.display = 'none';
+        return;
       }
-      const index = allBooksCache.findIndex(b => b.title === title);
-      await executeSave(title, index);
+
+      const totalPages = Math.ceil(totalBooks / itemsPerPage) || 1;
+      if (currentPage > totalPages) currentPage = totalPages;
+      if (currentPage < 1) currentPage = 1;
+
+      const startIndex = (currentPage - 1) * itemsPerPage;
+      const paginatedBooks = booksCache.slice(startIndex, startIndex + itemsPerPage);
+
+      document.getElementById('countBadge').textContent = `(共 ${totalBooks} 本書)`;
+      
+      let html = '';
+      paginatedBooks.forEach(book => {
+        html += renderBookCardHTML(book);
+      });
+      area.innerHTML = html;
+
+      // 顯示並更新分頁控制列
+      if (totalPages > 1) {
+        paginationBox.style.display = 'flex';
+        document.getElementById('pageInfo').textContent = `第 ${currentPage} / ${totalPages} 頁`;
+        document.getElementById('prevBtn').disabled = (currentPage === 1);
+        document.getElementById('nextBtn').disabled = (currentPage === totalPages);
+      } else {
+        paginationBox.style.display = 'none';
+      }
+
+    } else {
+      // 搜尋時暫時隱藏主分頁，改由智慧雙區搜尋呈現結果
+      paginationBox.style.display = 'none';
+      renderSmartSearchResults(keyword, area);
     }
   }
 
-  function updateStatusText(index, htmlContent) {
-    const statusElem = document.getElementById(`status-${index}`);
-    if (statusElem) statusElem.innerHTML = htmlContent;
+  // 7. 渲染單本書籍卡片 HTML
+  function renderBookCardHTML(book) {
+    const st = calculateBookStatus(book);
+    const isExpanded = expandedBookIds.has(book.id);
+    const readingRounds = book.readingSessions.length;
+
+    let statusClass = `status-${st.status}`;
+
+    let chaptersHTML = '';
+    book.chapters.forEach((ch) => {
+      chaptersHTML += `
+        <div class="chapter-item">
+          <div class="chapter-left">
+            <input type="checkbox" style="width:18px;height:18px;cursor:pointer;" 
+              ${ch.read ? 'checked' : ''} 
+              onchange="toggleChapterRead('${book.id}', '${ch.id}', this.checked)">
+            <span class="chapter-title ${ch.read ? 'completed' : ''}">${escapeHtml(ch.title)}</span>
+          </div>
+          <div class="chapter-actions" style="display:flex;gap:4px;">
+            <button class="btn-sm btn-secondary" onclick="moveChapter('${book.id}', '${ch.id}', -1)">↑</button>
+            <button class="btn-sm btn-secondary" onclick="moveChapter('${book.id}', '${ch.id}', 1)">↓</button>
+            <button class="btn-sm btn-warning" onclick="editChapterPrompt('${book.id}', '${ch.id}')">修改</button>
+            <button class="btn-sm btn-danger" onclick="deleteChapter('${book.id}', '${ch.id}')">刪除</button>
+          </div>
+        </div>
+      `;
+    });
+
+    return `
+      <div class="book-card" id="book-card-${book.id}">
+        <div class="book-header">
+          <div class="book-title-area" onclick="toggleExpand('${book.id}')">
+            <h3>
+              📖 ${escapeHtml(book.title)} 
+              <span class="status-pill ${statusClass}">${st.label}</span>
+            </h3>
+            <div class="book-meta">
+              <span>出版：${escapeHtml(book.date || '未填寫')}</span>
+              <span>閱讀次數：${readingRounds} 次</span>
+              <span>總篇數：${st.total} 篇 (已讀 ${st.readCount} 篇)</span>
+            </div>
+          </div>
+          <div class="book-actions">
+            <label style="display:flex;align-items:center;gap:4px;font-size:0.9rem;cursor:pointer;margin:0;">
+              <input type="checkbox" style="width:16px;height:16px;" ${book.purchased ? 'checked' : ''} onchange="togglePurchased('${book.id}', this.checked)"> 已購買
+            </label>
+            <button class="btn-sm btn-warning" onclick="openEditBookModal('${book.id}')">編輯</button>
+            <button class="btn-sm btn-danger" onclick="confirmDeleteBook('${book.id}', '${escapeJsString(book.title)}')">刪除</button>
+            <button class="btn-sm" onclick="toggleExpand('${book.id}')">${isExpanded ? '收起篇章 ▲' : '篇章管理 ▼'}</button>
+          </div>
+        </div>
+
+        <div class="progress-container">
+          <div class="progress-bar" style="width: ${st.percent}%;"></div>
+        </div>
+        <div class="progress-info">
+          <span>閱讀進度：${st.percent}%</span>
+          ${st.status === 'finished' ? `<button class="btn-sm btn-secondary" style="padding:2px 8px;font-size:0.75rem;" onclick="startNewReadingRound('${book.id}')">開始新一輪閱讀 ↺</button>` : ''}
+        </div>
+
+        <!-- 篇章管理展開區域 -->
+        <div class="chapter-section ${isExpanded ? 'active' : ''}" id="chapter-section-${book.id}">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+            <strong>篇章列表</strong>
+            <div style="display:flex;gap:6px;">
+              <button class="btn-sm" onclick="addSingleChapterPrompt('${book.id}')">+ 新增單篇</button>
+              <button class="btn-sm btn-secondary" onclick="openBatchModal('${book.id}')">📑 批次新增篇章</button>
+            </div>
+          </div>
+          <div id="chapter-list-${book.id}">
+            ${chaptersHTML || '<div class="empty-msg" style="padding:10px;">尚無篇章，請點擊上方新增。</div>'}
+          </div>
+        </div>
+      </div>
+    `;
   }
 
-  // 6. 開啟修改視窗前，強制檢查並先將待儲存項目送出
-  async function handleEditClick(index) {
-    await flushPendingSaves();
-    openEditModalByIndex(index);
+  // 8. 智慧雙區搜尋渲染
+  function renderSmartSearchResults(keyword, area) {
+    const matchedBooks = [];
+    const matchedChapters = [];
+
+    booksCache.forEach(book => {
+      if (book.title.toLowerCase().includes(keyword)) {
+        matchedBooks.push(book);
+      }
+      book.chapters.forEach(ch => {
+        if (ch.title.toLowerCase().includes(keyword)) {
+          matchedChapters.push({ book, chapter: ch });
+        }
+      });
+    });
+
+    const totalResults = matchedBooks.length + matchedChapters.length;
+    document.getElementById('countBadge').textContent = `(找到 ${totalResults} 筆符合項目)`;
+
+    if (totalResults === 0) {
+      area.innerHTML = '<div class="empty-msg">未找到符合關鍵字的書籍或篇章</div>';
+      return;
+    }
+
+    let html = `<div class="search-results-wrapper">`;
+
+    // 區塊 A：書籍搜尋結果
+    html += `<div class="search-section-title">📚 書籍搜尋結果 (${matchedBooks.length})</div>`;
+    if (matchedBooks.length === 0) {
+      html += `<div class="empty-msg" style="padding:8px;">無符合的書籍</div>`;
+    } else {
+      matchedBooks.forEach(book => {
+        const st = calculateBookStatus(book);
+        html += `
+          <div class="search-result-card" onclick="jumpToBook('${book.id}')">
+            <div>
+              <strong>${escapeHtml(book.title)}</strong>
+              <span class="badge">已讀 ${st.readCount}/${st.total} 篇 (${st.percent}%)</span>
+            </div>
+            <div>
+              <span class="status-pill status-${st.status}">${st.label}</span>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    // 區塊 B：篇章搜尋結果
+    html += `<div class="search-section-title" style="margin-top:24px;">📑 篇章搜尋結果 (${matchedChapters.length})</div>`;
+    if (matchedChapters.length === 0) {
+      html += `<div class="empty-msg" style="padding:8px;">無符合的篇章</div>`;
+    } else {
+      matchedChapters.forEach(item => {
+        const st = calculateBookStatus(item.book);
+        html += `
+          <div class="search-result-card" onclick="jumpToBook('${item.book.id}')">
+            <div>
+              <strong>${escapeHtml(item.chapter.title)}</strong>
+              <span class="badge">（來自書名：${escapeHtml(item.book.title)}）</span>
+            </div>
+            <div>
+              <span class="badge">${item.chapter.read ? '已讀 ✓' : '未讀'} | 書籍進度 ${st.percent}%</span>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    html += `</div>`;
+    area.innerHTML = html;
   }
 
-  // 7. 刪除前，強制檢查並先將待儲存項目送出
-  async function handleDeleteClick(title) {
-    await flushPendingSaves();
-    deleteBook(title);
+  // 9. 互動跳轉與展開
+  function toggleExpand(bookId) {
+    if (expandedBookIds.has(bookId)) {
+      expandedBookIds.delete(bookId);
+    } else {
+      expandedBookIds.add(bookId);
+    }
+    renderApp();
   }
 
-  // 8. 新增書籍 (預設未購買)
-  async function addBook() {
-    await flushPendingSaves();
+  function jumpToBook(bookId) {
+    document.getElementById('searchInput').value = '';
+    
+    // 計算該書位於第幾頁，自動切換至對應頁碼
+    const bookIndex = booksCache.findIndex(b => b.id === bookId);
+    if (bookIndex !== -1) {
+      currentPage = Math.floor(bookIndex / itemsPerPage) + 1;
+    }
 
-    const titleInput = document.getElementById('bookTitle');
-    const dateInput = document.getElementById('bookDate');
-    const readsInput = document.getElementById('bookReads');
-    const btn = document.getElementById('addBtn');
+    expandedBookIds.add(bookId);
+    renderApp();
+    
+    setTimeout(() => {
+      const card = document.getElementById(`book-card-${bookId}`);
+      if (card) {
+        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        card.style.borderColor = 'var(--primary)';
+        setTimeout(() => { card.style.borderColor = '#e2e8f0'; }, 1500);
+      }
+    }, 100);
+  }
 
+  // 10. 書籍 CRUD 操作
+  async function addNewBook() {
+    const titleInput = document.getElementById('bookTitleInput');
+    const dateInput = document.getElementById('bookDateInput');
     const title = titleInput.value.trim();
     const date = dateInput.value;
-    const reads = parseInt(readsInput.value, 10) || 0;
 
     if (!title) return alert('請輸入書名！');
 
-    btn.disabled = true;
-    btn.textContent = '儲存中...';
+    const newBook = {
+      id: generateId(),
+      title,
+      date,
+      purchased: false,
+      chapters: [],
+      readingSessions: [],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
 
-    try {
-      const res = await fetch(API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title, date, reads, toc: "", purchased: false })
-      });
-
-      if (res.ok) {
-        titleInput.value = '';
-        dateInput.value = '';
-        readsInput.value = '0';
-        currentPage = 1;
-        await fetchBooks();
-      } else {
-        alert('新增失敗！');
-      }
-    } catch (err) {
-      console.error("新增錯誤:", err);
-      alert('連線失敗！');
-    } finally {
-      btn.disabled = false;
-      btn.textContent = '新增';
-    }
+    booksCache.unshift(newBook);
+    titleInput.value = '';
+    dateInput.value = '';
+    currentPage = 1; // 新增後跳回第一頁
+    
+    await syncToCloud(newBook);
+    renderApp();
   }
 
-  // 9. 開啟修改視窗
-  function openEditModalByIndex(index) {
-    const book = allBooksCache[index];
+  function openEditBookModal(bookId) {
+    const book = booksCache.find(b => b.id === bookId);
     if (!book) return;
 
-    document.getElementById('editOldTitle').value = book.title;
-    document.getElementById('editTitle').value = book.title;
-    document.getElementById('editDate').value = book.date === '-' ? '' : book.date;
-    document.getElementById('editReads').value = book.reads;
-    document.getElementById('editToc').value = book.toc || '';
-    document.getElementById('editPurchased').checked = Boolean(book.purchased);
-    
-    document.getElementById('editModal').classList.add('active');
+    document.getElementById('editBookId').value = book.id;
+    document.getElementById('editBookTitle').value = book.title;
+    document.getElementById('editBookDate').value = book.date;
+    document.getElementById('editBookPurchased').checked = book.purchased;
+
+    document.getElementById('editBookModal').classList.add('active');
   }
 
   function closeEditModal() {
-    document.getElementById('editModal').classList.remove('active');
+    document.getElementById('editBookModal').classList.remove('active');
   }
 
-  // 10. 儲存修改視窗內容
-  async function saveEdit() {
-    const oldTitle = document.getElementById('editOldTitle').value;
-    const title = document.getElementById('editTitle').value.trim();
-    const date = document.getElementById('editDate').value;
-    const reads = parseInt(document.getElementById('editReads').value, 10) || 0;
-    const toc = document.getElementById('editToc').value;
-    const purchased = document.getElementById('editPurchased').checked;
+  async function saveBookEdit() {
+    const bookId = document.getElementById('editBookId').value;
+    const title = document.getElementById('editBookTitle').value.trim();
+    const date = document.getElementById('editBookDate').value;
+    const purchased = document.getElementById('editBookPurchased').checked;
 
     if (!title) return alert('書名不能為空！');
 
-    const btn = document.getElementById('saveEditBtn');
-    btn.disabled = true;
-    btn.textContent = '更新中...';
+    const book = booksCache.find(b => b.id === bookId);
+    if (!book) return;
 
-    try {
-      const res = await fetch(API_URL, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ oldTitle, title, date, reads, toc, purchased })
-      });
+    book.title = title;
+    book.date = date;
+    book.purchased = purchased;
+    book.updatedAt = new Date().toISOString();
 
-      if (res.ok) {
-        closeEditModal();
-        await fetchBooks();
-      } else {
-        alert('修改失敗！');
-      }
-    } catch (err) {
-      console.error("修改錯誤:", err);
-      alert('連線失敗！');
-    } finally {
-      btn.disabled = false;
-      btn.textContent = '儲存修改';
-    }
+    closeEditModal();
+    await syncToCloud(book);
+    renderApp();
   }
 
-  // 11. 刪除書籍
-  async function deleteBook(title) {
-    if (!confirm(`確定要刪除「${title}」這本書嗎？`)) return;
+  async function togglePurchased(bookId, purchased) {
+    const book = booksCache.find(b => b.id === bookId);
+    if (!book) return;
+    book.purchased = purchased;
+    await syncToCloud(book);
+    renderApp();
+  }
 
+  async function confirmDeleteBook(bookId, title) {
+    if (!confirm(`確定要刪除「${title}」及其所有篇章與閱讀紀錄嗎？`)) return;
+
+    booksCache = booksCache.filter(b => b.id !== bookId);
+    
     try {
-      const res = await fetch(API_URL, {
+      await fetch(API_URL, {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title })
+        body: JSON.stringify({ title, id: bookId })
       });
-
-      if (res.ok) {
-        await fetchBooks();
-      } else {
-        alert('刪除失敗！');
-      }
-    } catch (err) {
-      console.error("刪除錯誤:", err);
-      alert('連線失敗！');
+    } catch (e) {
+      console.error("刪除API錯誤", e);
     }
+    renderApp();
   }
 
-  // 防關閉提醒：若還有資料待寫入 GitHub，跳出警告
-  window.addEventListener('beforeunload', (e) => {
-    if (Object.keys(pendingChanges).length > 0) {
-      e.preventDefault();
-      e.returnValue = '尚有未儲存的更改，確定要離開嗎？';
+  // 11. 篇章 CRUD 與閱讀進度邏輯
+  async function addSingleChapterPrompt(bookId) {
+    const title = prompt('請輸入新篇章名稱：');
+    if (!title || !title.trim()) return;
+
+    const book = booksCache.find(b => b.id === bookId);
+    if (!book) return;
+
+    book.chapters.push({
+      id: generateId(),
+      title: title.trim(),
+      read: false,
+      readAt: null,
+      note: ''
+    });
+
+    await syncToCloud(book);
+    renderApp();
+  }
+
+  function openBatchModal(bookId) {
+    document.getElementById('batchBookId').value = bookId;
+    document.getElementById('batchChapterText').value = '';
+    document.getElementById('batchChapterModal').classList.add('active');
+  }
+
+  function closeBatchModal() {
+    document.getElementById('batchChapterModal').classList.remove('active');
+  }
+
+  async function saveBatchChapters() {
+    const bookId = document.getElementById('batchBookId').value;
+    const text = document.getElementById('batchChapterText').value;
+    const lines = text.split('\n').map(l => l.trim()).filter(l => l !== '');
+
+    if (lines.length === 0) return alert('請至少輸入一行篇名！');
+
+    const book = booksCache.find(b => b.id === bookId);
+    if (!book) return;
+
+    lines.forEach(line => {
+      book.chapters.push({
+        id: generateId(),
+        title: line,
+        read: false,
+        readAt: null,
+        note: ''
+      });
+    });
+
+    closeBatchModal();
+    await syncToCloud(book);
+    renderApp();
+  }
+
+  async function toggleChapterRead(bookId, chapterId, isChecked) {
+    const book = booksCache.find(b => b.id === bookId);
+    if (!book) return;
+
+    const chapter = book.chapters.find(ch => ch.id === chapterId);
+    if (!chapter) return;
+
+    const prevReadState = chapter.read;
+    chapter.read = isChecked;
+    chapter.readAt = isChecked ? new Date().toISOString() : null;
+
+    const total = book.chapters.length;
+    const allReadNow = total > 0 && book.chapters.every(ch => ch.read);
+    
+    if (allReadNow && prevReadState === false) {
+      book.readingSessions.push({
+        id: generateId(),
+        completedAt: new Date().toISOString()
+      });
     }
-  });
+
+    await syncToCloud(book);
+    renderApp();
+  }
+
+  async function startNewReadingRound(bookId) {
+    const book = booksCache.find(b => b.id === bookId);
+    if (!book) return;
+
+    if (!confirm('是否開始新一輪閱讀？本輪篇章勾選狀態將重設，但歷史閱讀紀錄將完整保留。')) return;
+
+    book.chapters.forEach(ch => {
+      ch.read = false;
+      ch.readAt = null;
+    });
+
+    await syncToCloud(book);
+    renderApp();
+  }
+
+  async function moveChapter(bookId, chapterId, direction) {
+    const book = booksCache.find(b => b.id === bookId);
+    if (!book) return;
+
+    const index = book.chapters.findIndex(ch => ch.id === chapterId);
+    if (index < 0) return;
+
+    const targetIndex = index + direction;
+    if (targetIndex < 0 || targetIndex >= book.chapters.length) return;
+
+    const temp = book.chapters[index];
+    book.chapters[index] = book.chapters[targetIndex];
+    book.chapters[targetIndex] = temp;
+
+    await syncToCloud(book);
+    renderApp();
+  }
+
+  async function editChapterPrompt(bookId, chapterId) {
+    const book = booksCache.find(b => b.id === bookId);
+    if (!book) return;
+
+    const chapter = book.chapters.find(ch => ch.id === chapterId);
+    if (!chapter) return;
+
+    const newTitle = prompt('修改篇名：', chapter.title);
+    if (!newTitle || !newTitle.trim()) return;
+
+    chapter.title = newTitle.trim();
+    await syncToCloud(book);
+    renderApp();
+  }
+
+  async function deleteChapter(bookId, chapterId) {
+    if (!confirm('確定要刪除此篇章嗎？')) return;
+
+    const book = booksCache.find(b => b.id === bookId);
+    if (!book) return;
+
+    book.chapters = book.chapters.filter(ch => ch.id !== chapterId);
+    await syncToCloud(book);
+    renderApp();
+  }
 
   function escapeHtml(text) {
     return String(text).replace(/[&<>"']/g, function(m) {
@@ -692,6 +1059,7 @@
     return String(str).replace(/'/g, "\\'").replace(/"/g, '\\"');
   }
 
+  // 初始化載入
   fetchBooks();
 </script>
 
