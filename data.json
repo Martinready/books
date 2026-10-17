@@ -100,8 +100,8 @@
       {
         "id": "id_uk4p65mwzmvbrg8la",
         "title": "第五篇　關於排聚會的實際交通",
-        "read": false,
-        "readAt": null,
+        "read": true,
+        "readAt": "2026-10-17T02:11:54.064Z",
         "note": ""
       },
       {
@@ -246,7 +246,7 @@
       }
     ],
     "readingSessions": [],
-    "updatedAt": "2026-10-17T02:11:50.789Z"
+    "updatedAt": "2026-10-17T02:11:54.064Z"
   },
   {
     "title": "活力排",
