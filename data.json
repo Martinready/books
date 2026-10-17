@@ -86,8 +86,8 @@
       {
         "id": "id_7hg1talv7mvbrg8la",
         "title": "第三篇　關於實行活力排的實際交通",
-        "read": false,
-        "readAt": null,
+        "read": true,
+        "readAt": "2026-10-17T02:11:49.442Z",
         "note": ""
       },
       {
@@ -246,7 +246,7 @@
       }
     ],
     "readingSessions": [],
-    "updatedAt": "2026-10-17T02:11:48.108Z"
+    "updatedAt": "2026-10-17T02:11:49.442Z"
   },
   {
     "title": "活力排",
