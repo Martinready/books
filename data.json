@@ -79,8 +79,8 @@
       {
         "id": "id_1c50l8nh9mvbrg8la",
         "title": "第二篇　在神命定之路上排聚集的實行",
-        "read": false,
-        "readAt": null,
+        "read": true,
+        "readAt": "2026-10-17T02:11:48.108Z",
         "note": ""
       },
       {
@@ -246,7 +246,7 @@
       }
     ],
     "readingSessions": [],
-    "updatedAt": "2026-10-17T02:11:47.207Z"
+    "updatedAt": "2026-10-17T02:11:48.108Z"
   },
   {
     "title": "活力排",
