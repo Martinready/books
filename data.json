@@ -29,8 +29,8 @@
       {
         "id": "id_d80ivwl14mvbrma9e",
         "title": "第四篇　文字服事的學習",
-        "read": false,
-        "readAt": null,
+        "read": true,
+        "readAt": "2026-10-17T02:16:34.393Z",
         "note": ""
       },
       {
@@ -99,7 +99,7 @@
     ],
     "readingSessions": [],
     "createdAt": "2026-10-17T02:16:03.333Z",
-    "updatedAt": "2026-10-17T02:16:32.983Z"
+    "updatedAt": "2026-10-17T02:16:34.393Z"
   },
   {
     "id": "id_l0up47blemvbrkqi5",
