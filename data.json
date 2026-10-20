@@ -125,7 +125,7 @@
     "id": "id_l0up47blemvbrkqi5",
     "title": "在大專校園傳揚福音",
     "date": "",
-    "purchased": false,
+    "purchased": true,
     "chapters": [
       {
         "id": "id_4ef8bupommvbrkzcs",
@@ -151,7 +151,7 @@
     ],
     "readingSessions": [],
     "createdAt": "2026-10-17T02:15:07.992Z",
-    "updatedAt": "2026-10-17T02:15:36.035Z"
+    "updatedAt": "2026-10-20T04:00:52.267Z"
   },
   {
     "title": "那靈與基督的身體",
