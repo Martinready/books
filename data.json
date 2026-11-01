@@ -234,8 +234,8 @@
       {
         "id": "id_fqv2e4xv2mvbrma9e",
         "title": "第七篇　配合職事的文字工作",
-        "read": true,
-        "readAt": "2026-11-01T06:07:58.369Z",
+        "read": false,
+        "readAt": null,
         "note": ""
       },
       {
@@ -283,7 +283,7 @@
     ],
     "readingSessions": [],
     "createdAt": "2026-10-17T02:16:03.333Z",
-    "updatedAt": "2026-11-01T06:07:58.369Z"
+    "updatedAt": "2026-11-01T06:08:01.598Z"
   },
   {
     "id": "id_l0up47blemvbrkqi5",
