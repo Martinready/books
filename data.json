@@ -227,8 +227,8 @@
       {
         "id": "id_nylpcogh7mvbrma9e",
         "title": "第六篇　文字工作的價值與學習",
-        "read": false,
-        "readAt": null,
+        "read": true,
+        "readAt": "2026-11-01T06:07:55.160Z",
         "note": ""
       },
       {
@@ -283,7 +283,7 @@
     ],
     "readingSessions": [],
     "createdAt": "2026-10-17T02:16:03.333Z",
-    "updatedAt": "2026-10-20T04:00:49.519Z"
+    "updatedAt": "2026-11-01T06:07:55.160Z"
   },
   {
     "id": "id_l0up47blemvbrkqi5",
