@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>信息填空題庫</title>
+<title>信息填空題庫（GitHub JSON 版）</title>
 <style>
 :root{--bg:#f4f6fa;--card:#fff;--ink:#202938;--muted:#718096;--line:#e5eaf1;--blue:#3767d6;--blue2:#edf3ff;--green:#16865b;--greenbg:#e8f7f0;--red:#c84d55;--redbg:#fff0f0;--shadow:0 8px 28px rgba(30,45,75,.07)}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Noto Sans TC",sans-serif;line-height:1.65}
@@ -13,7 +13,6 @@ button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;border-
 .tabs{display:flex;gap:8px;flex-wrap:wrap;margin:22px 0 16px}.tab{background:#e9edf5;color:#506078}.tab.active{background:var(--blue);color:white}.panel{padding:20px;margin-bottom:16px}.panel h2{font-size:18px;margin:0 0 5px}.sub{font-size:13px;color:var(--muted);margin:0 0 16px}
 .controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.controls select,.controls input,.field,textarea{border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:#fff;color:var(--ink)}.controls select{min-width:150px}.primary{background:var(--blue);color:white}.secondary{background:var(--blue2);color:var(--blue)}.ghost{background:#f1f3f7;color:#4d5a6d}.danger{background:var(--redbg);color:var(--red)}.success{background:var(--greenbg);color:var(--green)}
 .question{padding:20px;margin:14px 0}.qtop{display:flex;justify-content:space-between;gap:12px;align-items:center;color:var(--muted);font-size:12px}.tag{background:var(--blue2);color:var(--blue);padding:4px 9px;border-radius:99px;font-weight:700}.qtext{font-size:19px;line-height:1.9;margin:18px 0}.answer{padding:12px 14px;background:#f5f8fc;border-radius:10px;border-left:3px solid var(--blue);margin:12px 0}.answer b{color:var(--blue)}.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px}.mark{min-width:100px}.mark.selected{outline:2px solid currentColor;outline-offset:2px}.qfoot{font-size:12px;color:var(--muted);margin-top:12px}
-/* 篇章分隔標題樣式 */
 .section-divider{background:linear-gradient(90deg,#edf3ff,#f8fafc);border-left:5px solid var(--blue);padding:14px 20px;margin:24px 0 10px;font-size:16px;font-weight:800;color:var(--blue);display:flex;align-items:center;justify-content:space-between}
 .empty{text-align:center;padding:45px 15px;color:var(--muted)}.hidden{display:none!important}
 label{display:block;font-size:13px;font-weight:700;margin:12px 0 6px}textarea{width:100%;min-height:170px;resize:vertical}input[type=text]{width:100%}.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.hint{font-size:12px;color:var(--muted);background:#f6f8fb;padding:11px 13px;border-radius:10px;margin-top:10px}
@@ -27,7 +26,7 @@ footer{text-align:center;color:#9aa4b2;font-size:12px;padding:25px}
 <header class="top"><div class="top-inner">
 <div class="eyebrow">STUDY · REVIEW · GROW</div>
 <h1>信息填空題庫</h1>
-<p>透過重點與經節填空，反覆複習訓練信息。</p>
+<p>透過重點與經節填空，反覆複習訓練信息。（已連線讀取 GitHub 上的 exam.json）</p>
 </div></header>
 <main class="wrap">
 <section class="stats">
@@ -81,7 +80,6 @@ footer{text-align:center;color:#9aa4b2;font-size:12px;padding:25px}
    </select>
   </div>
 
-  <!-- 介面 1: 新增資訊與大綱解析 -->
   <div id="modeCreateInfo" class="mode-block hidden" style="border-top:1px solid var(--line); padding-top:15px;">
    <label>信息名稱</label><input class="field" id="newTitle" type="text" placeholder="例如：2026年9月國際長老及負責弟兄訓練">
    <label>信息總題</label><input class="field" id="newTheme" type="text" placeholder="例如：亞伯拉罕、以撒、雅各的神">
@@ -95,7 +93,6 @@ footer{text-align:center;color:#9aa4b2;font-size:12px;padding:25px}
    <div id="parseResult"></div>
   </div>
 
-  <!-- 介面 2: 新增／修改題目表單 -->
   <div id="modeQuestionForm" class="mode-block">
    <div id="selectEditContainer" class="hidden" style="background:#f8fafc; padding:12px; border-radius:10px; border:1px solid var(--line); margin-bottom:12px;">
     <label>請選擇要修改的題目</label>
@@ -110,9 +107,7 @@ footer{text-align:center;color:#9aa4b2;font-size:12px;padding:25px}
       <span>所屬篇章</span>
       <a href="javascript:void(0)" id="toggleSectionInputMode" style="color:var(--blue); font-size:12px;">✏️ 切換為自行輸入</a>
      </label>
-     <!-- 篇章選單模式（預設） -->
      <select id="qSectionSelect" class="field" style="width:100%"></select>
-     <!-- 篇章手動輸入模式（預設隱藏） -->
      <input id="qSectionInput" class="field hidden" type="text" placeholder="例如：壹、認識並經歷三一神">
     </div>
    </div>
@@ -126,7 +121,6 @@ footer{text-align:center;color:#9aa4b2;font-size:12px;padding:25px}
    <div class="controls" style="margin-top:12px"><button class="primary" id="saveQuestion">儲存題目</button><button class="ghost" id="clearQuestion">清空重填</button></div>
   </div>
 
-  <!-- 介面 3: 編輯篇章順序與名稱 -->
   <div id="modeEditSections" class="mode-block hidden">
    <div style="background:#f8fafc; padding:15px; border-radius:12px; border:1px solid var(--line);">
     <label>選擇要編輯篇章順序的信息：</label>
@@ -137,7 +131,6 @@ footer{text-align:center;color:#9aa4b2;font-size:12px;padding:25px}
   </div>
  </div>
 
- <!-- 只有選擇「修改現有題庫」時顯示的題目清單面板 -->
  <div id="manageListPanel" class="panel hidden">
   <h2>題目清單與排序</h2>
   <p class="sub">您可在此調整題目排序，或透過下方勾選進行「批次轉移所屬信息」。</p>
@@ -160,26 +153,55 @@ footer{text-align:center;color:#9aa4b2;font-size:12px;padding:25px}
   <div id="manageQuestions"></div>
  </div>
 </section>
-<footer>信息填空題庫 · 資料儲存在目前瀏覽器的 LocalStorage</footer>
+<footer>信息填空題庫 · 從 GitHub 讀取 exam.json 檔案</footer>
 </main>
 <script>
-const STORAGE_KEY='message_quiz_bank_v1';
-const seed={
- infos:[{id:'info-202609',title:'2026年9月國際長老及負責弟兄訓練',theme:'亞伯拉罕、以撒、雅各的神',createdAt:new Date().toISOString()}],
- questions:[
- {id:'s01',infoId:'info-202609',section:'壹、認識並經歷三一神',type:'keypoint',content:'「亞伯拉罕、以撒、雅各的神」含示＿＿＿＿。',answers:['三一神'],ref:'出埃及記三章十五節；馬太福音二十八章十九節；哥林多後書十三章十四節',note:'',status:''},
- {id:'s02',infoId:'info-202609',section:'壹、認識並經歷三一神',type:'keypoint',content:'亞伯拉罕信和神是獨一的＿＿＿＿，是那「稱無為有」者。',answers:['源頭'],ref:'羅馬書四章十七節',note:'',status:''},
- {id:'s03',infoId:'info-202609',section:'壹、認識並經歷三一神',type:'keypoint',content:'以撒是＿＿＿＿最佳的表徵，在他身上我們看見，一切都是從父而來。',answers:['子'],ref:'創世記二十四章三十六節；二十五章五節',note:'',status:''},
- {id:'s04',infoId:'info-202609',section:'壹、認識並經歷三一神',type:'keypoint',content:'雅各是對我們說到＿＿＿＿，他的經歷代表聖靈的工作，他的歷史豫表聖靈的管治。',answers:['聖靈'],ref:'創世記三十一章三十八至四十一節',note:'',status:''},
- {id:'s05',infoId:'info-202609',section:'貳、亞伯拉罕的神見於祂對待亞伯拉罕的事',type:'keypoint',content:'亞伯拉罕的神是＿＿＿＿的神，見於祂向亞伯拉罕第一次顯現。',answers:['榮耀'],ref:'創世記十一章三十一節',note:'',status:''},
- {id:'s06',infoId:'info-202609',section:'貳、亞伯拉罕的神見於祂對待亞伯拉罕的事',type:'keypoint',content:'亞伯拉罕的神是賜福的神，應許使他成為大國，使他的名為大，並使他成為別人的＿＿＿＿。',answers:['福'],ref:'創世記十二章一至四節',note:'',status:''},
- {id:'s07',infoId:'info-202609',section:'參、兩個婦人的寓意',type:'keypoint',content:'撒拉和夏甲寓指＿＿＿＿的約與律法的約。',answers:['應許'],ref:'創世記十六章一至三節；加拉太書四章二十四節',note:'完整對照：撒拉表徵恩典，夏甲表徵律法。',status:''}
+const STORAGE_KEY = 'message_quiz_bank_v1';
+
+// 🔴 請將此處改為您 GitHub 倉庫中 exam.json 的 Raw 原始檔網址
+// 例如: 'https://raw.githubusercontent.com/您的帳號/您的倉庫/main/exam.json'
+const API_URL = 'https://raw.githubusercontent.com/你的帳號/你的倉庫名稱/main/exam.json';
+
+const seed = {
+ infos: [{id: 'info-202609', title: '2026年9月國際長老及負責弟兄訓練', theme: '亞伯拉罕、以撒、雅各的神', createdAt: new Date().toISOString()}],
+ questions: [
+  {id: 's01', infoId: 'info-202609', section: '壹、認識並經歷三一神', type: 'keypoint', content: '「亞伯拉罕、以撒、雅各的神」含示＿＿＿＿。', answers: ['三一神'], ref: '出埃及記三章十五節', note: '', status: ''}
  ]
 };
-let db=loadDB(), activeQuestions=[], revealed={}, isManualSectionInput=false;
 
-function loadDB(){try{let x=JSON.parse(localStorage.getItem(STORAGE_KEY));return x&&x.infos&&x.questions?x:seed}catch(e){return seed}}
-function saveDB(){localStorage.setItem(STORAGE_KEY,JSON.stringify(db));renderAll()}
+let db = seed, activeQuestions = [], revealed = {}, isManualSectionInput = false;
+
+// 异步載入資料（優先從 GitHub 讀取 exam.json，失敗則回退至本機 LocalStorage）
+async function initDB() {
+  try {
+    let res = await fetch(API_URL);
+    if(res.ok) {
+      let data = await res.json();
+      if(data && data.infos && data.questions) {
+        db = data;
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
+      }
+    } else {
+      throw new Error('無法取得 GitHub 檔案');
+    }
+  } catch(e) {
+    console.warn("無法連線至 GitHub 讀取 exam.json，改用本機快取資料。", e);
+    try {
+      let x = JSON.parse(localStorage.getItem(STORAGE_KEY));
+      if(x && x.infos && x.questions) db = x;
+    } catch(err) {
+      db = seed;
+    }
+  }
+  renderAll();
+}
+
+// 儲存資料（更新本機並提示匯出更新後的 exam.json）
+function saveDB() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
+  renderAll();
+}
+
 function esc(s=''){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function typeName(t){return t==='scripture'?'經節填空':'重點填空'}
 
@@ -192,12 +214,6 @@ function showTab(tab){
 }
 
 document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>showTab(b.dataset.tab));
-
-function fillSelect(el,items,first){
- let old=el.value;
- el.innerHTML=`<option value="all">${first}</option>`+items.map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join('');
- if([...el.options].some(o=>o.value===old)) el.value=old;
-}
 
 function fillSelectKeepValue(el, itemsHtml, defaultFirstLabel){
  let currentVal = el.value;
@@ -222,7 +238,9 @@ function renderAll(){
  fillSelectKeepValue(document.getElementById('sectionManageInfoFilter'), infoOpts, null);
  
  const secs=[...new Set(db.questions.map(q=>q.section).filter(Boolean))];
- fillSelect(document.getElementById('sectionFilter'),secs,'全部篇章');
+ let oldSec = document.getElementById('sectionFilter').value;
+ document.getElementById('sectionFilter').innerHTML = '<option value="all">全部篇章</option>' + secs.map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join('');
+ if([...document.getElementById('sectionFilter').options].some(o=>o.value===oldSec)) document.getElementById('sectionFilter').value=oldSec;
  
  updateFormSectionSelect();
  renderPractice();
@@ -230,7 +248,6 @@ function renderAll(){
  renderManage();
 }
 
-// 動態更新表單中的篇章下拉選單
 function updateFormSectionSelect(){
  let infoId = document.getElementById('qInfo').value;
  let sections = [...new Set(db.questions.filter(q => q.infoId === infoId).map(q => q.section).filter(Boolean))];
@@ -245,7 +262,6 @@ document.getElementById('qSectionSelect').onchange = (e) => {
  }
 };
 
-// 切換篇章選單 / 輸入框
 function toggleSectionInput(showInput){
  isManualSectionInput = showInput;
  const selectEl = document.getElementById('qSectionSelect');
@@ -268,7 +284,6 @@ document.getElementById('toggleSectionInputMode').onclick = () => {
  toggleSectionInput(!isManualSectionInput);
 };
 
-// 【功能一】練習清單：帶篇章分區標題
 function renderPractice(){
  const info=document.getElementById('infoFilter').value,
        type=document.getElementById('typeFilter').value,
@@ -290,7 +305,6 @@ function renderPractice(){
  let lastSection = null;
  
  qs.forEach((q, i) => {
-  // 插入篇章分區區塊標頭
   if(q.section !== lastSection){
    lastSection = q.section;
    html += `<div class="section-divider">
@@ -397,7 +411,7 @@ function setManageMode(mode){
  } else if (mode === 'editSections') {
   sectionEditBlock.classList.remove('hidden');
   renderSectionManager();
- } else { // addQuestion
+ } else {
   qFormBlock.classList.remove('hidden');
   container.classList.add('hidden');
   saveBtn.textContent = '儲存題目';
@@ -421,10 +435,8 @@ document.getElementById('targetEditSelect').onchange = (e) => {
  loadQuestionToForm(e.target.value);
 };
 
-// 【功能三】篇章順序與名稱編輯器渲染
 function renderSectionManager(){
  let infoId = document.getElementById('sectionManageInfoFilter').value;
- let infoObj = db.infos.find(i => i.id === infoId);
  let sections = [...new Set(db.questions.filter(q => q.infoId === infoId).map(q => q.section).filter(Boolean))];
  
  let container = document.getElementById('sectionOrderList');
@@ -446,7 +458,6 @@ function renderSectionManager(){
 
 document.getElementById('sectionManageInfoFilter').onchange = renderSectionManager;
 
-// 調整整組篇章順序
 function moveSectionPosition(infoId, secName, targetPosInput){
  let targetPos = parseInt(targetPosInput) - 1;
  let sections = [...new Set(db.questions.filter(q => q.infoId === infoId).map(q => q.section).filter(Boolean))];
@@ -455,17 +466,14 @@ function moveSectionPosition(infoId, secName, targetPosInput){
  let currentIdx = sections.indexOf(secName);
  if(currentIdx === targetPos) return;
 
- // 重新排列篇章順序
  let [movedSec] = sections.splice(currentIdx, 1);
  sections.splice(targetPos, 0, movedSec);
 
- // 根據新篇章順序重新排序題目
  let newQuestions = [];
  for(let sec of sections){
   let secQs = db.questions.filter(q => q.infoId === infoId && q.section === sec);
   newQuestions.push(...secQs);
  }
- // 保留其它信息的題目
  let otherQs = db.questions.filter(q => q.infoId !== infoId);
  db.questions = [...newQuestions, ...otherQs];
  
@@ -557,7 +565,6 @@ function clearQuestion(){
 
 document.getElementById('clearQuestion').onclick=clearQuestion;
 
-// 【功能二】儲存題目：可從選單或手動輸入讀取篇章
 document.getElementById('saveQuestion').onclick=()=>{
  let id=document.getElementById('editId').value, 
      infoId=document.getElementById('qInfo').value,
@@ -670,27 +677,6 @@ document.getElementById('createInfoBtn').onclick = () => {
  setManageMode('addQuestion');
 };
 
-function parseOutline(text){
- let lines=text.split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
- let sections=[],refs=[];
- for(let line of lines){
-  if(/^[壹貳參肆伍陸柒捌玖拾一二三四五六七八九十]+、/.test(line)||/^第[一二三四五六七八九十]+篇/.test(line)){
-   sections.push(line);
-  }
-  let matches=line.match(/(?:創|出|利|民|申|書|太|可|路|約|徒|羅|林前|林後|加|弗|腓|西|帖前|帖後|提前|提後|多|門|來|雅|彼前|彼後|約壹|約貳|約參|猶|啟)[一二三四五六七八九十\d]+章[^，。；）]*/g);
-  if(matches) matches.forEach(m=>refs.push(m));
- }
- return {sections:[...new Set(sections)],refs:[...new Set(refs)]};
-}
-
-document.getElementById('parseBtn').onclick=()=>{
- let text=document.getElementById('sourceText').value.trim();
- if(!text){alert('請先貼上信息文字。');return;}
- let p=parseOutline(text);
- document.getElementById('parseResult').innerHTML=`<div class="hint"><b>解析結果</b><br>辨識到 ${p.sections.length} 個篇章標題、${p.refs.length} 組疑似經節。<br><br><b>篇章</b><br>${p.sections.map(esc).join('<br>')||'未辨識到篇章標題'}<br><br><b>經節（請人工核對）</b><br>${p.refs.map(esc).join('<br>')||'未辨識到經節'}</div>`;
- window._parsed=p;
-};
-
 document.getElementById('autoGenerateBtn').onclick = () => {
  let text = document.getElementById('sourceText').value.trim();
  let title = document.getElementById('newTitle').value.trim();
@@ -770,7 +756,7 @@ document.getElementById('exportBtn').onclick=()=>{
  let blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'});
  let a=document.createElement('a');
  a.href=URL.createObjectURL(blob);
- a.download='信息填空題庫備份.json';
+ a.download='exam.json';
  a.click();
  URL.revokeObjectURL(a.href);
 };
@@ -791,6 +777,7 @@ document.getElementById('importFile').onchange=async e=>{
  e.target.value='';
 };
 
-renderAll();
+// 初始化執行
+initDB();
 </script>
 </body></html>
