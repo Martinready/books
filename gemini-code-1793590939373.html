@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>信息填空題庫</title>
+<style>
+:root{--bg:#f4f6fa;--card:#fff;--ink:#202938;--muted:#718096;--line:#e5eaf1;--blue:#3767d6;--blue2:#edf3ff;--green:#16865b;--greenbg:#e8f7f0;--red:#c84d55;--redbg:#fff0f0;--shadow:0 8px 28px rgba(30,45,75,.07)}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Noto Sans TC",sans-serif;line-height:1.65}
+button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;border-radius:10px;padding:10px 15px;font-weight:650}
+.top{background:linear-gradient(120deg,#233d72,#426ec4);color:#fff;padding:28px 20px 34px}.top-inner,.wrap{max-width:1100px;margin:auto}.eyebrow{font-size:12px;letter-spacing:1.5px;opacity:.8}.top h1{margin:5px 0;font-size:28px}.top p{margin:0;color:#dbe6ff;font-size:14px}
+.wrap{padding:22px 18px 60px}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:-18px;position:relative}.stat,.panel,.question,.info-card,.section-divider{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow)}.stat{padding:15px 18px}.stat small{color:var(--muted)}.stat strong{display:block;font-size:25px;margin-top:2px}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:22px 0 16px}.tab{background:#e9edf5;color:#506078}.tab.active{background:var(--blue);color:white}.panel{padding:20px;margin-bottom:16px}.panel h2{font-size:18px;margin:0 0 5px}.sub{font-size:13px;color:var(--muted);margin:0 0 16px}
+.controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.controls select,.controls input,.field,textarea{border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:#fff;color:var(--ink)}.controls select{min-width:150px}.primary{background:var(--blue);color:white}.secondary{background:var(--blue2);color:var(--blue)}.ghost{background:#f1f3f7;color:#4d5a6d}.danger{background:var(--redbg);color:var(--red)}.success{background:var(--greenbg);color:var(--green)}
+.question{padding:20px;margin:14px 0}.qtop{display:flex;justify-content:space-between;gap:12px;align-items:center;color:var(--muted);font-size:12px}.tag{background:var(--blue2);color:var(--blue);padding:4px 9px;border-radius:99px;font-weight:700}.qtext{font-size:19px;line-height:1.9;margin:18px 0}.answer{padding:12px 14px;background:#f5f8fc;border-radius:10px;border-left:3px solid var(--blue);margin:12px 0}.answer b{color:var(--blue)}.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px}.mark{min-width:100px}.mark.selected{outline:2px solid currentColor;outline-offset:2px}.qfoot{font-size:12px;color:var(--muted);margin-top:12px}
+/* 篇章分隔標題樣式 */
+.section-divider{background:linear-gradient(90deg,#edf3ff,#f8fafc);border-left:5px solid var(--blue);padding:14px 20px;margin:24px 0 10px;font-size:16px;font-weight:800;color:var(--blue);display:flex;align-items:center;justify-content:space-between}
+.empty{text-align:center;padding:45px 15px;color:var(--muted)}.hidden{display:none!important}
+label{display:block;font-size:13px;font-weight:700;margin:12px 0 6px}textarea{width:100%;min-height:170px;resize:vertical}input[type=text]{width:100%}.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.hint{font-size:12px;color:var(--muted);background:#f6f8fb;padding:11px 13px;border-radius:10px;margin-top:10px}
+.list{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}.info-card{padding:16px}.info-card h3{font-size:16px;margin:0 0 5px}.info-card p{font-size:12px;color:var(--muted);margin:0 0 12px}.info-card .mini{font-size:12px;color:var(--muted)}
+.progress{height:7px;background:#edf0f5;border-radius:20px;overflow:hidden;margin-top:8px}.progress span{display:block;height:100%;background:var(--green)}
+footer{text-align:center;color:#9aa4b2;font-size:12px;padding:25px}
+@media(max-width:650px){.stats{grid-template-columns:1fr 1fr}.stats .stat:last-child{grid-column:span 2}.top h1{font-size:24px}.qtext{font-size:17px}.formgrid{grid-template-columns:1fr}.wrap{padding:18px 12px 45px}.panel{padding:16px}}
+</style>
+</head>
+<body>
+<header class="top"><div class="top-inner">
+<div class="eyebrow">STUDY · REVIEW · GROW</div>
+<h1>信息填空題庫</h1>
+<p>透過重點與經節填空，反覆複習訓練信息。</p>
+</div></header>
+<main class="wrap">
+<section class="stats">
+ <div class="stat"><small>題庫總題數</small><strong id="totalCount">0</strong></div>
+ <div class="stat"><small>已標記掌握 O</small><strong id="correctCount">0</strong></div>
+ <div class="stat"><small>待加強 X</small><strong id="wrongCount">0</strong></div>
+</section>
+<nav class="tabs">
+ <button class="tab active" data-tab="practice">開始練習</button>
+ <button class="tab" data-tab="library">信息題庫</button>
+ <button class="tab" data-tab="manage">新增／管理題目</button>
+</nav>
+
+<section id="practice" class="view">
+ <div class="panel">
+  <h2>練習設定</h2><p class="sub">選擇信息、題型與範圍，開始自己的複習。</p>
+  <div class="controls">
+   <select id="infoFilter"><option value="all">全部信息</option></select>
+   <select id="typeFilter"><option value="all">全部題型</option><option value="keypoint">重點填空</option><option value="scripture">經節填空</option></select>
+   <select id="sectionFilter"><option value="all">全部篇章</option></select>
+   <select id="statusFilter"><option value="all">全部題目</option><option value="unanswered">尚未標記</option><option value="wrong">錯題複習（X）</option><option value="correct">已掌握（O）</option></select>
+   <select id="orderFilter"><option value="normal">依序出題</option><option value="random">隨機出題</option></select>
+   <button class="primary" id="startBtn">開始練習</button>
+  </div>
+ </div>
+ <div id="practiceMeta" class="sub"></div>
+ <div id="questionList"></div>
+</section>
+
+<section id="library" class="view hidden">
+ <div class="panel"><h2>我的信息題庫</h2><p class="sub">每份信息獨立管理，可匯出備份或匯入 JSON 題庫。</p><div class="controls">
+ <button class="primary" onclick="showTab('manage'); setManageMode('createInfo');">＋ 新增信息</button>
+ <button class="secondary" id="exportBtn">匯出全部 JSON</button>
+ <label style="margin:0"><input type="file" id="importFile" accept=".json,application/json" hidden><button class="ghost" onclick="document.getElementById('importFile').click()">匯入 JSON</button></label>
+ </div></div>
+ <div id="infoList" class="list"></div>
+</section>
+
+<section id="manage" class="view hidden">
+ <div class="panel">
+  <h2>題庫編輯與管理</h2>
+  <p class="sub">請選擇要執行的操作，介面將切換為對應的編輯模式。</p>
+  
+  <div class="controls" style="margin-bottom:15px;">
+   <label style="margin:0; font-weight:700;">選擇操作類別：</label>
+   <select id="manageModeSelect" class="field" style="font-weight:bold; color:var(--blue); min-width:220px;">
+    <option value="addQuestion">➕ 新增題目</option>
+    <option value="editQuestion">✏️ 修改現有題庫</option>
+    <option value="editSections">📑 編輯篇章順序與名稱</option>
+    <option value="createInfo">📄 新增資訊與大綱解析</option>
+   </select>
+  </div>
+
+  <!-- 介面 1: 新增資訊與大綱解析 -->
+  <div id="modeCreateInfo" class="mode-block hidden" style="border-top:1px solid var(--line); padding-top:15px;">
+   <label>信息名稱</label><input class="field" id="newTitle" type="text" placeholder="例如：2026年9月國際長老及負責弟兄訓練">
+   <label>信息總題</label><input class="field" id="newTheme" type="text" placeholder="例如：亞伯拉罕、以撒、雅各的神">
+   <label>貼上信息文字（支援壹、一、1、a 等階層大綱）</label><textarea id="sourceText" placeholder="將完整信息大綱貼在這裡……"></textarea>
+   <div class="controls" style="margin-top:12px">
+    <button class="primary" id="parseBtn">解析篇章與經節</button>
+    <button class="success" id="autoGenerateBtn" style="background:var(--green); color:#fff;">✨ AI 自動分析並生成題庫</button>
+    <button class="secondary" id="createInfoBtn">建立空白信息</button>
+   </div>
+   <div class="hint">點擊「AI 自動分析並生成題庫」會自動將您貼上的綱目轉換為填空題！</div>
+   <div id="parseResult"></div>
+  </div>
+
+  <!-- 介面 2: 新增／修改題目表單 -->
+  <div id="modeQuestionForm" class="mode-block">
+   <div id="selectEditContainer" class="hidden" style="background:#f8fafc; padding:12px; border-radius:10px; border:1px solid var(--line); margin-bottom:12px;">
+    <label>請選擇要修改的題目</label>
+    <select id="targetEditSelect" class="field" style="width:100%"></select>
+   </div>
+
+   <input type="hidden" id="editId">
+   <div class="formgrid">
+    <div><label>所屬信息</label><select id="qInfo" class="field" style="width:100%"></select></div>
+    <div>
+     <label style="display:flex; justify-content:space-between;">
+      <span>所屬篇章</span>
+      <a href="javascript:void(0)" id="toggleSectionInputMode" style="color:var(--blue); font-size:12px;">✏️ 切換為自行輸入</a>
+     </label>
+     <!-- 篇章選單模式（預設） -->
+     <select id="qSectionSelect" class="field" style="width:100%"></select>
+     <!-- 篇章手動輸入模式（預設隱藏） -->
+     <input id="qSectionInput" class="field hidden" type="text" placeholder="例如：壹、認識並經歷三一神">
+    </div>
+   </div>
+   <div class="formgrid">
+    <div><label>題目類型</label><select id="qType" class="field" style="width:100%"><option value="keypoint">重點填空</option><option value="scripture">經節填空</option></select></div>
+    <div><label>經節出處（選填）</label><input id="qRef" class="field" type="text" placeholder="例如：羅馬書四章十七節"></div>
+   </div>
+   <label>題目（請用＿＿＿＿表示空格）</label><textarea id="qContent" style="min-height:90px" placeholder="亞伯拉罕信和神是獨一的＿＿＿＿。"></textarea>
+   <label>答案（多個答案請用「、」分隔）</label><input id="qAnswer" class="field" type="text" placeholder="源頭">
+   <label>原文／補充說明（選填）</label><textarea id="qNote" style="min-height:70px" placeholder="可貼上完整原句或補充說明"></textarea>
+   <div class="controls" style="margin-top:12px"><button class="primary" id="saveQuestion">儲存題目</button><button class="ghost" id="clearQuestion">清空重填</button></div>
+  </div>
+
+  <!-- 介面 3: 編輯篇章順序與名稱 -->
+  <div id="modeEditSections" class="mode-block hidden">
+   <div style="background:#f8fafc; padding:15px; border-radius:12px; border:1px solid var(--line);">
+    <label>選擇要編輯篇章順序的信息：</label>
+    <select id="sectionManageInfoFilter" class="field" style="width:100%; font-weight:bold;"></select>
+    <p class="sub" style="margin-top:8px;">在下方輸入序號數字，即可直接調整整體篇章的排序，所屬題目將跟隨整組移動。</p>
+    <div id="sectionOrderList" style="margin-top:15px;"></div>
+   </div>
+  </div>
+ </div>
+
+ <!-- 只有選擇「修改現有題庫」時顯示的題目清單面板 -->
+ <div id="manageListPanel" class="panel hidden">
+  <h2>題目清單與排序</h2>
+  <p class="sub">您可在此調整題目排序，或透過下方勾選進行「批次轉移所屬信息」。</p>
+  
+  <div id="batchBar" class="hidden" style="background:var(--blue2); padding:12px; border-radius:10px; margin-bottom:12px; display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+   <span id="selectedCountText" style="font-weight:700; color:var(--blue);">已選取 0 題</span>
+   <select id="batchTargetInfo" class="field" style="flex:1; min-width:180px;"></select>
+   <button class="primary" onclick="executeBatchMove()">批次移動至選定信息</button>
+  </div>
+
+  <div class="controls" style="justify-content:space-between;">
+   <div style="display:flex; gap:10px; flex-wrap:wrap;">
+    <select id="manageInfoFilter"></select>
+    <select id="manageTypeFilter"><option value="all">全部題型</option><option value="keypoint">重點填空</option><option value="scripture">經節填空</option></select>
+   </div>
+   <label style="display:flex; align-items:center; gap:6px; cursor:pointer; margin:0;">
+    <input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll(this)"> 全選目前顯示題目
+   </label>
+  </div>
+  <div id="manageQuestions"></div>
+ </div>
+</section>
+<footer>信息填空題庫 · 資料儲存在目前瀏覽器的 LocalStorage</footer>
+</main>
+<script>
+const STORAGE_KEY='message_quiz_bank_v1';
+const seed={
+ infos:[{id:'info-202609',title:'2026年9月國際長老及負責弟兄訓練',theme:'亞伯拉罕、以撒、雅各的神',createdAt:new Date().toISOString()}],
+ questions:[
+ {id:'s01',infoId:'info-202609',section:'壹、認識並經歷三一神',type:'keypoint',content:'「亞伯拉罕、以撒、雅各的神」含示＿＿＿＿。',answers:['三一神'],ref:'出埃及記三章十五節；馬太福音二十八章十九節；哥林多後書十三章十四節',note:'',status:''},
+ {id:'s02',infoId:'info-202609',section:'壹、認識並經歷三一神',type:'keypoint',content:'亞伯拉罕信和神是獨一的＿＿＿＿，是那「稱無為有」者。',answers:['源頭'],ref:'羅馬書四章十七節',note:'',status:''},
+ {id:'s03',infoId:'info-202609',section:'壹、認識並經歷三一神',type:'keypoint',content:'以撒是＿＿＿＿最佳的表徵，在他身上我們看見，一切都是從父而來。',answers:['子'],ref:'創世記二十四章三十六節；二十五章五節',note:'',status:''},
+ {id:'s04',infoId:'info-202609',section:'壹、認識並經歷三一神',type:'keypoint',content:'雅各是對我們說到＿＿＿＿，他的經歷代表聖靈的工作，他的歷史豫表聖靈的管治。',answers:['聖靈'],ref:'創世記三十一章三十八至四十一節',note:'',status:''},
+ {id:'s05',infoId:'info-202609',section:'貳、亞伯拉罕的神見於祂對待亞伯拉罕的事',type:'keypoint',content:'亞伯拉罕的神是＿＿＿＿的神，見於祂向亞伯拉罕第一次顯現。',answers:['榮耀'],ref:'創世記十一章三十一節',note:'',status:''},
+ {id:'s06',infoId:'info-202609',section:'貳、亞伯拉罕的神見於祂對待亞伯拉罕的事',type:'keypoint',content:'亞伯拉罕的神是賜福的神，應許使他成為大國，使他的名為大，並使他成為別人的＿＿＿＿。',answers:['福'],ref:'創世記十二章一至四節',note:'',status:''},
+ {id:'s07',infoId:'info-202609',section:'參、兩個婦人的寓意',type:'keypoint',content:'撒拉和夏甲寓指＿＿＿＿的約與律法的約。',answers:['應許'],ref:'創世記十六章一至三節；加拉太書四章二十四節',note:'完整對照：撒拉表徵恩典，夏甲表徵律法。',status:''}
+ ]
+};
+let db=loadDB(), activeQuestions=[], revealed={}, isManualSectionInput=false;
+
+function loadDB(){try{let x=JSON.parse(localStorage.getItem(STORAGE_KEY));return x&&x.infos&&x.questions?x:seed}catch(e){return seed}}
+function saveDB(){localStorage.setItem(STORAGE_KEY,JSON.stringify(db));renderAll()}
+function esc(s=''){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function typeName(t){return t==='scripture'?'經節填空':'重點填空'}
+
+function showTab(tab){
+ document.querySelectorAll('.view').forEach(v=>v.classList.toggle('hidden',v.id!==tab));
+ document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));
+ if(tab==='manage') renderManage();
+ if(tab==='library') renderLibrary();
+ window.scrollTo({top:0,behavior:'smooth'});
+}
+
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>showTab(b.dataset.tab));
+
+function fillSelect(el,items,first){
+ let old=el.value;
+ el.innerHTML=`<option value="all">${first}</option>`+items.map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join('');
+ if([...el.options].some(o=>o.value===old)) el.value=old;
+}
+
+function fillSelectKeepValue(el, itemsHtml, defaultFirstLabel){
+ let currentVal = el.value;
+ el.innerHTML = defaultFirstLabel ? `<option value="all">${defaultFirstLabel}</option>` + itemsHtml : itemsHtml;
+ if([...el.options].some(o => o.value === currentVal)){
+  el.value = currentVal;
+ }
+}
+
+function renderAll(){
+ document.getElementById('totalCount').textContent=db.questions.length;
+ document.getElementById('correctCount').textContent=db.questions.filter(q=>q.status==='O').length;
+ document.getElementById('wrongCount').textContent=db.questions.filter(q=>q.status==='X').length;
+ 
+ const infos=db.infos;
+ const infoOpts=infos.map(i=>`<option value="${esc(i.id)}">${esc(i.title)}</option>`).join('');
+ 
+ fillSelectKeepValue(document.getElementById('infoFilter'), infoOpts, '全部信息');
+ fillSelectKeepValue(document.getElementById('qInfo'), infoOpts, null);
+ fillSelectKeepValue(document.getElementById('manageInfoFilter'), infoOpts, '全部信息');
+ fillSelectKeepValue(document.getElementById('batchTargetInfo'), infoOpts, null);
+ fillSelectKeepValue(document.getElementById('sectionManageInfoFilter'), infoOpts, null);
+ 
+ const secs=[...new Set(db.questions.map(q=>q.section).filter(Boolean))];
+ fillSelect(document.getElementById('sectionFilter'),secs,'全部篇章');
+ 
+ updateFormSectionSelect();
+ renderPractice();
+ renderLibrary();
+ renderManage();
+}
+
+// 動態更新表單中的篇章下拉選單
+function updateFormSectionSelect(){
+ let infoId = document.getElementById('qInfo').value;
+ let sections = [...new Set(db.questions.filter(q => q.infoId === infoId).map(q => q.section).filter(Boolean))];
+ let selectEl = document.getElementById('qSectionSelect');
+ selectEl.innerHTML = sections.map(s => `<option value="${esc(s)}">${esc(s)}</option>`).join('') + `<option value="__new__">＋ 新增其他篇章...</option>`;
+}
+
+document.getElementById('qInfo').onchange = updateFormSectionSelect;
+document.getElementById('qSectionSelect').onchange = (e) => {
+ if(e.target.value === '__new__'){
+  toggleSectionInput(true);
+ }
+};
+
+// 切換篇章選單 / 輸入框
+function toggleSectionInput(showInput){
+ isManualSectionInput = showInput;
+ const selectEl = document.getElementById('qSectionSelect');
+ const inputEl = document.getElementById('qSectionInput');
+ const btn = document.getElementById('toggleSectionInputMode');
+ 
+ if(showInput){
+  selectEl.classList.add('hidden');
+  inputEl.classList.remove('hidden');
+  inputEl.focus();
+  btn.textContent = '📋 切換為下拉選取';
+ } else {
+  selectEl.classList.remove('hidden');
+  inputEl.classList.add('hidden');
+  btn.textContent = '✏️ 切換為自行輸入';
+ }
+}
+
+document.getElementById('toggleSectionInputMode').onclick = () => {
+ toggleSectionInput(!isManualSectionInput);
+};
+
+// 【功能一】練習清單：帶篇章分區標題
+function renderPractice(){
+ const info=document.getElementById('infoFilter').value,
+       type=document.getElementById('typeFilter').value,
+       section=document.getElementById('sectionFilter').value,
+       status=document.getElementById('statusFilter').value;
+       
+ let qs=db.questions.filter(q=>(info==='all'||q.infoId===info)&&(type==='all'||q.type===type)&&(section==='all'||q.section===section)&&(status==='all'||(status==='wrong'?q.status==='X':status==='correct'?q.status==='O':!q.status)));
+ if(document.getElementById('orderFilter').value==='random') qs=qs.slice().sort(()=>Math.random()-.5);
+ activeQuestions=qs;
+ 
+ document.getElementById('practiceMeta').textContent=`目前符合條件：${qs.length} 題`;
+ const list=document.getElementById('questionList');
+ if(!qs.length){
+  list.innerHTML='<div class="panel empty">目前沒有符合條件的題目。<br>可以新增題目，或調整練習範圍。</div>';
+  return;
+ }
+ 
+ let html = '';
+ let lastSection = null;
+ 
+ qs.forEach((q, i) => {
+  // 插入篇章分區區塊標頭
+  if(q.section !== lastSection){
+   lastSection = q.section;
+   html += `<div class="section-divider">
+    <span>📌 ${esc(q.section||'未分類篇章')}</span>
+    <span style="font-size:12px; font-weight:normal; opacity:0.8;">篇章起點</span>
+   </div>`;
+  }
+
+  let revCount = revealed[q.id] || 0;
+  let isMulti = q.answers.length >= 3;
+  let isFullyRevealed = isMulti ? (revCount >= q.answers.length) : (revCount > 0);
+  let shownAnswers = isMulti ? q.answers.slice(0, revCount) : (revCount > 0 ? q.answers : []);
+  
+  let btnText = '顯示答案';
+  if(isMulti){
+    if(revCount === 0){
+      btnText = '顯示第 1 個答案';
+    } else if(revCount < q.answers.length){
+      btnText = `顯示下一個答案 (${revCount}/${q.answers.length})`;
+    } else {
+      btnText = '隱藏答案';
+    }
+  } else {
+    btnText = revCount > 0 ? '隱藏答案' : '顯示答案';
+  }
+
+  html += `<article class="question" id="card-${q.id}">
+ <div class="qtop"><span>${esc(q.section||'未分類')} · ${i+1}/${qs.length}</span><span class="tag">${typeName(q.type)}</span></div>
+ <div class="qtext">${esc(q.content).replace(/＿＿＿＿/g,'<span style="color:#3767d6;font-weight:800">＿＿＿＿</span>')}</div>
+ ${revCount > 0 ? `<div class="answer"><b>答案：</b>${shownAnswers.map(esc).join('、')}${isFullyRevealed && q.note ? `<div style="margin-top:6px;color:#65748b;font-size:13px">${esc(q.note)}</div>` : ''}</div>` : ''}
+ <div class="actions"><button class="secondary" onclick="stepAnswer('${q.id}')">${btnText}</button>
+ ${isFullyRevealed ? `<button class="success mark ${q.status==='O'?'selected':''}" onclick="markQuestion('${q.id}','O')">O 答對</button><button class="danger mark ${q.status==='X'?'selected':''}" onclick="markQuestion('${q.id}','X')">X 答錯</button>` : ''}</div>
+ <div class="qfoot">${q.ref?'經節：'+esc(q.ref):'未設定經節'} ${q.status==='O'?'· 已掌握':q.status==='X'?'· 待加強':'· 尚未標記'}</div>
+ </article>`;
+ });
+ list.innerHTML = html;
+}
+
+function stepAnswer(id){
+ let q = db.questions.find(x => x.id === id);
+ if(!q) return;
+ let current = revealed[id] || 0;
+ if(q.answers.length >= 3){
+  if(current < q.answers.length){
+   revealed[id] = current + 1;
+  } else {
+   revealed[id] = 0;
+  }
+ } else {
+  revealed[id] = current > 0 ? 0 : 1;
+ }
+ renderPractice();
+}
+
+function markQuestion(id,s){
+ let q=db.questions.find(x=>x.id===id);
+ if(q){
+  q.status=s;
+  saveDB();
+  if(q.answers.length>=3){revealed[id]=q.answers.length;}else{revealed[id]=1;}
+  renderPractice();
+ }
+}
+
+['infoFilter','typeFilter','sectionFilter','statusFilter','orderFilter'].forEach(id=>document.getElementById(id).addEventListener('change',renderPractice));
+document.getElementById('startBtn').onclick=()=>{revealed={};renderPractice();document.getElementById('questionList').scrollIntoView({behavior:'smooth',block:'start'})};
+
+function renderLibrary(){
+ const el=document.getElementById('infoList');
+ el.innerHTML=db.infos.map(info=>{
+  let qs=db.questions.filter(q=>q.infoId===info.id);
+  let done=qs.filter(q=>q.status==='O').length;
+  return `<div class="info-card"><h3>${esc(info.title)}</h3><p>${esc(info.theme||'未設定總題')}</p><div class="mini">${qs.length} 題 · 重點 ${qs.filter(q=>q.type==='keypoint').length} · 經節 ${qs.filter(q=>q.type==='scripture').length}</div><div class="progress"><span style="width:${qs.length?done/qs.length*100:0}%"></span></div><div class="mini" style="margin-top:6px">已掌握 ${done}/${qs.length}</div><div class="controls" style="margin-top:12px"><button class="secondary" onclick="useInfo('${info.id}')">練習此信息</button><button class="ghost" onclick="deleteInfo('${info.id}')">刪除</button></div></div>`;
+ }).join('')||'<div class="empty">尚未建立信息題庫。</div>';
+}
+
+function useInfo(id){showTab('practice');document.getElementById('infoFilter').value=id;renderPractice()}
+function deleteInfo(id){if(!confirm('確定刪除此信息及其所有題目？此動作無法復原。'))return;db.infos=db.infos.filter(i=>i.id!==id);db.questions=db.questions.filter(q=>q.infoId!==id);saveDB()}
+
+function setManageMode(mode){
+ document.getElementById('manageModeSelect').value = mode;
+ const createBlock = document.getElementById('modeCreateInfo');
+ const qFormBlock = document.getElementById('modeQuestionForm');
+ const sectionEditBlock = document.getElementById('modeEditSections');
+ const container = document.getElementById('selectEditContainer');
+ const saveBtn = document.getElementById('saveQuestion');
+ const listPanel = document.getElementById('manageListPanel');
+
+ createBlock.classList.add('hidden');
+ qFormBlock.classList.add('hidden');
+ sectionEditBlock.classList.add('hidden');
+ listPanel.classList.add('hidden');
+
+ if (mode === 'createInfo') {
+  createBlock.classList.remove('hidden');
+ } else if (mode === 'editQuestion') {
+  qFormBlock.classList.remove('hidden');
+  container.classList.remove('hidden');
+  saveBtn.textContent = '更新題目';
+  listPanel.classList.remove('hidden');
+  updateEditSelect();
+  let firstId = document.getElementById('targetEditSelect').value;
+  if(firstId) loadQuestionToForm(firstId);
+ } else if (mode === 'editSections') {
+  sectionEditBlock.classList.remove('hidden');
+  renderSectionManager();
+ } else { // addQuestion
+  qFormBlock.classList.remove('hidden');
+  container.classList.add('hidden');
+  saveBtn.textContent = '儲存題目';
+  clearQuestion();
+ }
+}
+
+document.getElementById('manageModeSelect').onchange = (e) => {
+ setManageMode(e.target.value);
+};
+
+function updateEditSelect(){
+ let info = document.getElementById('manageInfoFilter').value;
+ let type = document.getElementById('manageTypeFilter').value;
+ let qs = db.questions.filter(q => (info==='all'||q.infoId===info) && (type==='all'||q.type===type));
+ let sel = document.getElementById('targetEditSelect');
+ sel.innerHTML = qs.map(q => `<option value="${q.id}">[${typeName(q.type)}] ${esc(q.content.substring(0,25))}...</option>`).join('') || '<option value="">無符合條件的題目</option>';
+}
+
+document.getElementById('targetEditSelect').onchange = (e) => {
+ loadQuestionToForm(e.target.value);
+};
+
+// 【功能三】篇章順序與名稱編輯器渲染
+function renderSectionManager(){
+ let infoId = document.getElementById('sectionManageInfoFilter').value;
+ let infoObj = db.infos.find(i => i.id === infoId);
+ let sections = [...new Set(db.questions.filter(q => q.infoId === infoId).map(q => q.section).filter(Boolean))];
+ 
+ let container = document.getElementById('sectionOrderList');
+ if(!sections.length){
+  container.innerHTML = '<div class="empty">此信息目前無任何篇章。</div>';
+  return;
+ }
+ 
+ container.innerHTML = sections.map((sec, idx) => `
+ <div style="display:flex; justify-content:space-between; align-items:center; background:#fff; padding:10px 14px; border-radius:8px; border:1px solid var(--line); margin-bottom:8px;">
+  <div style="font-weight:700; color:var(--ink);">#${idx+1} · ${esc(sec)}</div>
+  <div style="display:flex; align-items:center; gap:6px;">
+   <span style="font-size:12px; color:var(--muted);">移至第</span>
+   <input type="number" class="field" style="width:60px; padding:4px; text-align:center;" min="1" max="${sections.length}" value="${idx+1}" onchange="moveSectionPosition('${infoId}', '${esc(sec)}', this.value)">
+   <span style="font-size:12px; color:var(--muted);">位</span>
+  </div>
+ </div>`).join('');
+}
+
+document.getElementById('sectionManageInfoFilter').onchange = renderSectionManager;
+
+// 調整整組篇章順序
+function moveSectionPosition(infoId, secName, targetPosInput){
+ let targetPos = parseInt(targetPosInput) - 1;
+ let sections = [...new Set(db.questions.filter(q => q.infoId === infoId).map(q => q.section).filter(Boolean))];
+ 
+ if(isNaN(targetPos) || targetPos < 0 || targetPos >= sections.length) return;
+ let currentIdx = sections.indexOf(secName);
+ if(currentIdx === targetPos) return;
+
+ // 重新排列篇章順序
+ let [movedSec] = sections.splice(currentIdx, 1);
+ sections.splice(targetPos, 0, movedSec);
+
+ // 根據新篇章順序重新排序題目
+ let newQuestions = [];
+ for(let sec of sections){
+  let secQs = db.questions.filter(q => q.infoId === infoId && q.section === sec);
+  newQuestions.push(...secQs);
+ }
+ // 保留其它信息的題目
+ let otherQs = db.questions.filter(q => q.infoId !== infoId);
+ db.questions = [...newQuestions, ...otherQs];
+ 
+ saveDB();
+ renderSectionManager();
+}
+
+function renderManage(){
+ let info = document.getElementById('manageInfoFilter').value;
+ let type = document.getElementById('manageTypeFilter').value;
+ let qs = db.questions.filter(q => (info==='all'||q.infoId===info) && (type==='all'||q.type===type));
+ 
+ if(document.getElementById('manageModeSelect').value === 'editQuestion') {
+  updateEditSelect();
+ }
+
+ document.getElementById('manageQuestions').innerHTML=qs.map((q, idx)=>`
+ <div style="border-bottom:1px solid var(--line);padding:12px 0; display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;">
+  <div style="display:flex; align-items:flex-start; gap:10px; flex:1; min-width:250px;">
+   <input type="checkbox" class="q-checkbox" value="${q.id}" onchange="updateBatchBar()" style="margin-top:4px;">
+   <div>
+    <div style="font-size:12px;color:var(--muted)">#${idx+1} · ${typeName(q.type)} · ${esc(q.section)} · <b style="color:var(--blue)">${esc(db.infos.find(i=>i.id===q.infoId)?.title||'')}</b></div>
+    <div style="margin:5px 0">${esc(q.content)}</div>
+    <div style="font-size:13px;color:var(--blue)">答案：${q.answers.map(esc).join('、')}</div>
+   </div>
+  </div>
+  <div class="controls" style="align-items:center;">
+   <div style="display:flex; align-items:center; gap:4px;">
+    <span style="font-size:12px; color:var(--muted);">移至第</span>
+    <input type="number" class="field" style="width:65px; padding:6px; height:36px; text-align:center;" min="1" max="${qs.length}" value="${idx+1}" onchange="moveQuestionToPosition('${q.id}', this.value)">
+    <span style="font-size:12px; color:var(--muted);">名</span>
+   </div>
+   <button class="secondary" onclick="jumpToEdit('${q.id}')">編輯</button>
+   <button class="danger" onclick="deleteQuestion('${q.id}')">刪除</button>
+  </div>
+ </div>`).join('')||'<div class="empty">尚無題目。</div>';
+ 
+ document.getElementById('selectAllCheckbox').checked = false;
+ updateBatchBar();
+}
+
+document.getElementById('manageInfoFilter').onchange = renderManage;
+document.getElementById('manageTypeFilter').onchange = renderManage;
+
+function toggleSelectAll(master){
+ let checkboxes = document.querySelectorAll('.q-checkbox');
+ checkboxes.forEach(cb => cb.checked = master.checked);
+ updateBatchBar();
+}
+
+function updateBatchBar(){
+ let checkboxes = document.querySelectorAll('.q-checkbox:checked');
+ let bar = document.getElementById('batchBar');
+ let countText = document.getElementById('selectedCountText');
+ 
+ if(checkboxes.length > 0){
+  bar.classList.remove('hidden');
+  countText.textContent = `已選取 ${checkboxes.length} 題`;
+ } else {
+  bar.classList.add('hidden');
+ }
+}
+
+function executeBatchMove(){
+ let checkboxes = document.querySelectorAll('.q-checkbox:checked');
+ if(checkboxes.length === 0) return;
+ let targetInfoId = document.getElementById('batchTargetInfo').value;
+ let targetInfoObj = db.infos.find(i => i.id === targetInfoId);
+ 
+ if(!confirm(`確定要將選取的 ${checkboxes.length} 題移動至「${targetInfoObj ? targetInfoObj.title : '指定信息'}」嗎？`)) return;
+
+ let selectedIds = Array.from(checkboxes).map(cb => cb.value);
+ db.questions.forEach(q => {
+  if(selectedIds.includes(q.id)){
+   q.infoId = targetInfoId;
+  }
+ });
+
+ saveDB();
+ alert(`✨ 成功將 ${selectedIds.length} 道題目批次轉移！`);
+}
+
+function clearQuestion(){
+ document.getElementById('editId').value='';
+ ['qRef','qContent','qAnswer','qNote','qSectionInput'].forEach(id=>document.getElementById(id).value='');
+ document.getElementById('qType').value='keypoint';
+ toggleSectionInput(false);
+}
+
+document.getElementById('clearQuestion').onclick=clearQuestion;
+
+// 【功能二】儲存題目：可從選單或手動輸入讀取篇章
+document.getElementById('saveQuestion').onclick=()=>{
+ let id=document.getElementById('editId').value, 
+     infoId=document.getElementById('qInfo').value,
+     sectionVal = isManualSectionInput ? document.getElementById('qSectionInput').value.trim() : document.getElementById('qSectionSelect').value,
+     content=document.getElementById('qContent').value.trim(), 
+     answers=document.getElementById('qAnswer').value.split(/[、,，]/).map(x=>x.trim()).filter(Boolean);
+     
+ if(sectionVal === '__new__') sectionVal = '未分類篇章';
+ if(!infoId){alert('請先建立或選擇信息。');return;}
+ if(!content||!answers.length){alert('請填寫題目與答案。');return;}
+ 
+ let data={
+  id:id||'q-'+Date.now(),
+  infoId,
+  section:sectionVal || '未分類篇章',
+  type:document.getElementById('qType').value,
+  content,
+  answers,
+  ref:document.getElementById('qRef').value.trim(),
+  note:document.getElementById('qNote').value.trim(),
+  status:id?(db.questions.find(q=>q.id===id)?.status||''):''
+ };
+ 
+ if(id){
+  let idx=db.questions.findIndex(q=>q.id===id);
+  if(idx>=0) db.questions[idx]=data;
+  alert('題目已更新。');
+ }else{
+  db.questions.push(data);
+  alert('題目已新增。');
+  clearQuestion();
+ }
+ saveDB();
+};
+
+function loadQuestionToForm(id){
+ let q=db.questions.find(x=>x.id===id);
+ if(!q)return;
+ document.getElementById('editId').value=q.id;
+ document.getElementById('qInfo').value=q.infoId;
+ updateFormSectionSelect();
+ 
+ const selectEl = document.getElementById('qSectionSelect');
+ if([...selectEl.options].some(o => o.value === q.section)){
+  toggleSectionInput(false);
+  selectEl.value = q.section;
+ } else {
+  toggleSectionInput(true);
+  document.getElementById('qSectionInput').value = q.section;
+ }
+ 
+ document.getElementById('qType').value=q.type;
+ document.getElementById('qRef').value=q.ref;
+ document.getElementById('qContent').value=q.content;
+ document.getElementById('qAnswer').value=q.answers.join('、');
+ document.getElementById('qNote').value=q.note||'';
+}
+
+function jumpToEdit(id){
+ setManageMode('editQuestion');
+ document.getElementById('targetEditSelect').value = id;
+ loadQuestionToForm(id);
+ window.scrollTo({top: 200, behavior:'smooth'});
+}
+
+function moveQuestionToPosition(id, targetPosInput){
+ let targetPos = parseInt(targetPosInput);
+ let info = document.getElementById('manageInfoFilter').value;
+ let type = document.getElementById('manageTypeFilter').value;
+ let qs = db.questions.filter(q => (info==='all'||q.infoId===info) && (type==='all'||q.type===type));
+ 
+ if(isNaN(targetPos)) return;
+ targetPos = targetPos - 1;
+ if(targetPos < 0) targetPos = 0;
+ if(targetPos >= qs.length) targetPos = qs.length - 1;
+
+ let currentIndex = qs.findIndex(q => q.id === id);
+ if(currentIndex === targetPos) return;
+
+ let [item] = qs.splice(currentIndex, 1);
+ qs.splice(targetPos, 0, item);
+
+ let newQuestions = [];
+ let qsIndex = 0;
+ for(let q of db.questions){
+  let matches = (info === 'all' || q.infoId === info) && (type === 'all' || q.type === type);
+  if(matches){
+   newQuestions.push(qs[qsIndex++]);
+  }else{
+   newQuestions.push(q);
+  }
+ }
+ db.questions = newQuestions;
+ saveDB();
+}
+
+function deleteQuestion(id){if(!confirm('確定刪除此題？'))return;db.questions=db.questions.filter(q=>q.id!==id);saveDB()}
+
+document.getElementById('createInfoBtn').onclick = () => {
+ let title = document.getElementById('newTitle').value.trim();
+ let theme = document.getElementById('newTheme').value.trim();
+ if(!title){alert('請輸入信息名稱。');return;}
+ 
+ let id = 'info-' + Date.now();
+ db.infos.push({id, title, theme, createdAt: new Date().toISOString()});
+ saveDB();
+ 
+ document.getElementById('qInfo').value = id;
+ alert('信息已建立！已自動幫您指定至此新信息，現在可開始新增題目。');
+ setManageMode('addQuestion');
+};
+
+function parseOutline(text){
+ let lines=text.split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
+ let sections=[],refs=[];
+ for(let line of lines){
+  if(/^[壹貳參肆伍陸柒捌玖拾一二三四五六七八九十]+、/.test(line)||/^第[一二三四五六七八九十]+篇/.test(line)){
+   sections.push(line);
+  }
+  let matches=line.match(/(?:創|出|利|民|申|書|太|可|路|約|徒|羅|林前|林後|加|弗|腓|西|帖前|帖後|提前|提後|多|門|來|雅|彼前|彼後|約壹|約貳|約參|猶|啟)[一二三四五六七八九十\d]+章[^，。；）]*/g);
+  if(matches) matches.forEach(m=>refs.push(m));
+ }
+ return {sections:[...new Set(sections)],refs:[...new Set(refs)]};
+}
+
+document.getElementById('parseBtn').onclick=()=>{
+ let text=document.getElementById('sourceText').value.trim();
+ if(!text){alert('請先貼上信息文字。');return;}
+ let p=parseOutline(text);
+ document.getElementById('parseResult').innerHTML=`<div class="hint"><b>解析結果</b><br>辨識到 ${p.sections.length} 個篇章標題、${p.refs.length} 組疑似經節。<br><br><b>篇章</b><br>${p.sections.map(esc).join('<br>')||'未辨識到篇章標題'}<br><br><b>經節（請人工核對）</b><br>${p.refs.map(esc).join('<br>')||'未辨識到經節'}</div>`;
+ window._parsed=p;
+};
+
+document.getElementById('autoGenerateBtn').onclick = () => {
+ let text = document.getElementById('sourceText').value.trim();
+ let title = document.getElementById('newTitle').value.trim();
+ let theme = document.getElementById('newTheme').value.trim();
+ 
+ if(!text){alert('請先貼上信息文字綱目。');return;}
+ if(!title){alert('請先輸入上方的信息名稱。');document.getElementById('newTitle').focus();return;}
+ 
+ let infoId = 'info-' + Date.now();
+ db.infos.push({
+  id: infoId, 
+  title: title, 
+  theme: theme || '綱目自動解析', 
+  createdAt: new Date().toISOString()
+ });
+ saveDB();
+
+ let lines = text.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+ let currentSection = '未分類篇章';
+ let generatedCount = 0;
+
+ for(let line of lines){
+  if(/^[壹貳參肆伍陸柒捌玖拾]/.test(line) || /^第[一二三四五六七八九十]+篇/.test(line)){
+   currentSection = line;
+   continue;
+  }
+
+  let match = line.match(/^(.*?)(?:一|—)([\d男女～上下至第章節與多處]+)$/);
+  let contentText = line;
+  let refText = '';
+
+  if(match){
+   contentText = match[1].trim();
+   refText = match[2].trim();
+  }
+
+  if(contentText.length < 2) continue;
+
+  let blankContent = contentText;
+  let answerText = '';
+
+  let words = contentText.split(/[\s，、：]/);
+  let targetWord = words[words.length - 1]; 
+  if(targetWord && targetWord.length >= 1 && targetWord.length <= 6){
+   answerText = targetWord;
+   blankContent = contentText.replace(targetWord, '＿＿＿＿');
+  } else {
+   answerText = contentText.substring(0, 3);
+   blankContent = '＿＿＿＿' + contentText.substring(3);
+  }
+
+  let newQ = {
+   id: 'q-' + Date.now() + '-' + Math.random().toString(36).substring(2, 5),
+   infoId: infoId,
+   section: currentSection,
+   type: refText ? 'scripture' : 'keypoint',
+   content: blankContent.includes('＿＿＿＿') ? blankContent : blankContent + '＿＿＿＿',
+   answers: [answerText],
+   ref: refText ? ('經文範圍：' + refText) : '',
+   note: '由綱目自動解析生成：' + line,
+   status: ''
+  };
+
+  db.questions.push(newQ);
+  generatedCount++;
+ }
+
+ saveDB();
+ alert(`✨ 成功！已為您獨立建立新信息「${title}」，並自動生成 ${generatedCount} 道填空題目！`);
+ 
+ showTab('practice');
+ document.getElementById('infoFilter').value = infoId;
+ renderPractice();
+};
+
+document.getElementById('exportBtn').onclick=()=>{
+ let blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'});
+ let a=document.createElement('a');
+ a.href=URL.createObjectURL(blob);
+ a.download='信息填空題庫備份.json';
+ a.click();
+ URL.revokeObjectURL(a.href);
+};
+
+document.getElementById('importFile').onchange=async e=>{
+ let f=e.target.files[0];
+ if(!f)return;
+ try{
+  let obj=JSON.parse(await f.text());
+  if(!obj.infos||!obj.questions) throw Error('格式不正確');
+  if(!confirm('匯入會以檔案內容取代目前題庫，建議先匯出備份。確定繼續？')) return;
+  db=obj;
+  saveDB();
+  alert('匯入完成。');
+ }catch(err){
+  alert('匯入失敗：'+err.message);
+ }
+ e.target.value='';
+};
+
+renderAll();
+</script>
+</body></html>
