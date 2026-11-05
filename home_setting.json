@@ -1,0 +1,17 @@
+{
+  "proxyUrl": "https://my-portal-proxy.yourname.workers.dev/?target=",
+  "cards": [
+    {
+      "id": "siteA",
+      "title": "範例系統 A",
+      "desc": "標準外部網站，點擊開啟新頁籤。",
+      "url": "https://example.com"
+    },
+    {
+      "id": "siteB",
+      "title": "電子書櫃 (系統B)",
+      "desc": "GitHub Pages 專案，透過 Cloudflare Worker 代理繞過嵌入限制。",
+      "url": "https://martinready.github.io/books"
+    }
+  ]
+}
