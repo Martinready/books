@@ -2,6 +2,13 @@
   "proxyUrl": "https://homepage.errmartin3.workers.dev//?target=",
   "cards": [
     {
+      "id": "id_5outcc3wk",
+      "title": "詩歌",
+      "desc": "",
+      "url": "https://martinready.github.io/books/hymns",
+      "createdAt": "2026-11-06T13:14:35.482Z"
+    },
+    {
       "id": "id_22spydk7v",
       "title": "信息考題",
       "desc": "",
