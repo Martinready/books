@@ -3,9 +3,10 @@
   "cards": [
     {
       "id": "siteA",
-      "title": "範例系統 A",
+      "title": "美地簿",
       "desc": "標準外部網站，點擊開啟新頁籤。",
-      "url": "https://example.com"
+      "url": "https://martinready.github.io/books/goodland",
+      "updatedAt": "2026-11-06T13:13:48.994Z"
     },
     {
       "id": "siteB",
