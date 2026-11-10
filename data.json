@@ -1032,6 +1032,81 @@
     "date": "",
     "reads": 0,
     "toc": "",
-    "purchased": true
+    "purchased": true,
+    "id": "id_rkq63v93ymwa4wagw",
+    "chapters": [
+      {
+        "id": "id_kvatluqrrmwa4xnqy",
+        "title": "第一章　會聽別人的話",
+        "read": false,
+        "readAt": null,
+        "note": ""
+      },
+      {
+        "id": "id_h10bi89p6mwa4xnqy",
+        "title": "第二章　覺得人可愛",
+        "read": false,
+        "readAt": null,
+        "note": ""
+      },
+      {
+        "id": "id_ti6cmdscjmwa4xnqy",
+        "title": "第三章　有受苦的心志",
+        "read": false,
+        "readAt": null,
+        "note": ""
+      },
+      {
+        "id": "id_uwzvk83ltmwa4xnqy",
+        "title": "第四章　『攻克己身，叫身服我』",
+        "read": false,
+        "readAt": null,
+        "note": ""
+      },
+      {
+        "id": "id_94fnrhu1ymwa4xnqy",
+        "title": "第五章　慇勤不懶惰",
+        "read": false,
+        "readAt": null,
+        "note": ""
+      },
+      {
+        "id": "id_2z9o4rjv2mwa4xnqy",
+        "title": "第六章　話語受約束",
+        "read": false,
+        "readAt": null,
+        "note": ""
+      },
+      {
+        "id": "id_fdltk53kdmwa4xnqy",
+        "title": "第七章　性情堅固",
+        "read": false,
+        "readAt": null,
+        "note": ""
+      },
+      {
+        "id": "id_0ibkkodd8mwa4xnqy",
+        "title": "第八章　不主觀",
+        "read": false,
+        "readAt": null,
+        "note": ""
+      },
+      {
+        "id": "id_wmr98v2gomwa4xnqy",
+        "title": "第九章　對於錢財的態度",
+        "read": false,
+        "readAt": null,
+        "note": ""
+      },
+      {
+        "id": "id_v1jsvj5rlmwa4xnqy",
+        "title": "第十章　其他幾件事",
+        "read": false,
+        "readAt": null,
+        "note": ""
+      }
+    ],
+    "readingSessions": [],
+    "updatedAt": "2026-11-10T03:33:15.515Z"
   }
 ]
