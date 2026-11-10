@@ -1227,15 +1227,15 @@
       {
         "id": "id_z3mmajijqmwa4ynsl",
         "title": "第二十九篇　生命的長大（十四）",
-        "read": true,
-        "readAt": "2026-11-10T03:34:11.023Z",
+        "read": false,
+        "readAt": null,
         "note": ""
       },
       {
         "id": "id_5nr9j97etmwa4ynsl",
         "title": "第三十篇　生命的經歷（十六）",
-        "read": false,
-        "readAt": null,
+        "read": true,
+        "readAt": "2026-11-10T03:34:11.770Z",
         "note": ""
       },
       {
@@ -1247,7 +1247,7 @@
       }
     ],
     "readingSessions": [],
-    "updatedAt": "2026-11-10T03:34:11.023Z"
+    "updatedAt": "2026-11-10T03:34:16.221Z"
   },
   {
     "title": "主工人的性格",
