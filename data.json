@@ -1094,8 +1094,8 @@
       {
         "id": "id_wmr98v2gomwa4xnqy",
         "title": "第九章　對於錢財的態度",
-        "read": false,
-        "readAt": null,
+        "read": true,
+        "readAt": "2026-11-10T03:33:21.148Z",
         "note": ""
       },
       {
@@ -1107,6 +1107,6 @@
       }
     ],
     "readingSessions": [],
-    "updatedAt": "2026-11-10T03:33:15.515Z"
+    "updatedAt": "2026-11-10T03:33:21.149Z"
   }
 ]
