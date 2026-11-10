@@ -1025,7 +1025,229 @@
     "date": "",
     "reads": 0,
     "toc": "",
-    "purchased": true
+    "purchased": true,
+    "id": "id_40simw8z4mwa4wagw",
+    "chapters": [
+      {
+        "id": "id_deyshjislmwa4ynsl",
+        "title": "第一篇　生命的經歷（一）",
+        "read": false,
+        "readAt": null,
+        "note": ""
+      },
+      {
+        "id": "id_nkl52c3ximwa4ynsl",
+        "title": "第二篇　生命的長大（一）",
+        "read": false,
+        "readAt": null,
+        "note": ""
+      },
+      {
+        "id": "id_uvxh58naomwa4ynsl",
+        "title": "第三篇　生命的經歷（二）",
+        "read": false,
+        "readAt": null,
+        "note": ""
+      },
+      {
+        "id": "id_mzxt4j68tmwa4ynsl",
+        "title": "第四篇　生命的長大（二）",
+        "read": false,
+        "readAt": null,
+        "note": ""
+      },
+      {
+        "id": "id_t7cl6kcsymwa4ynsl",
+        "title": "第五篇　生命的經歷（三）",
+        "read": false,
+        "readAt": null,
+        "note": ""
+      },
+      {
+        "id": "id_ng2mkdbuqmwa4ynsl",
+        "title": "第六篇　生命的長大（三）",
+        "read": false,
+        "readAt": null,
+        "note": ""
+      },
+      {
+        "id": "id_t0rr90khgmwa4ynsl",
+        "title": "第七篇　生命的經歷（四）",
+        "read": false,
+        "readAt": null,
+        "note": ""
+      },
+      {
+        "id": "id_zhc34cdivmwa4ynsl",
+        "title": "第八篇　生命的長大（四）",
+        "read": false,
+        "readAt": null,
+        "note": ""
+      },
+      {
+        "id": "id_tavea2dwamwa4ynsl",
+        "title": "第九篇　生命的經歷（五）",
+        "read": false,
+        "readAt": null,
+        "note": ""
+      },
+      {
+        "id": "id_svovffg7tmwa4ynsl",
+        "title": "第十篇　生命的長大（五）",
+        "read": false,
+        "readAt": null,
+        "note": ""
+      },
+      {
+        "id": "id_eif67r40bmwa4ynsl",
+        "title": "第十一篇　生命的經歷（六）",
+        "read": false,
+        "readAt": null,
+        "note": ""
+      },
+      {
+        "id": "id_i5ccavx3amwa4ynsl",
+        "title": "第十二篇　生命的長大（六）",
+        "read": false,
+        "readAt": null,
+        "note": ""
+      },
+      {
+        "id": "id_7wvsbs4etmwa4ynsl",
+        "title": "第十三篇　生命的經歷（七）",
+        "read": false,
+        "readAt": null,
+        "note": ""
+      },
+      {
+        "id": "id_w9c7ikv3gmwa4ynsl",
+        "title": "第十四篇　生命的長大（七）",
+        "read": false,
+        "readAt": null,
+        "note": ""
+      },
+      {
+        "id": "id_6rc9sewq2mwa4ynsl",
+        "title": "第十五篇　生命的經歷（八）",
+        "read": false,
+        "readAt": null,
+        "note": ""
+      },
+      {
+        "id": "id_12uejtfqjmwa4ynsl",
+        "title": "第十六篇　生命的長大（八）",
+        "read": false,
+        "readAt": null,
+        "note": ""
+      },
+      {
+        "id": "id_iov8gtxqpmwa4ynsl",
+        "title": "第十七篇　生命的經歷（九）",
+        "read": false,
+        "readAt": null,
+        "note": ""
+      },
+      {
+        "id": "id_l4a4tgsrrmwa4ynsl",
+        "title": "第十八篇　生命的長大（九）",
+        "read": false,
+        "readAt": null,
+        "note": ""
+      },
+      {
+        "id": "id_n1n65zgebmwa4ynsl",
+        "title": "第十九篇　生命的經歷（十）",
+        "read": false,
+        "readAt": null,
+        "note": ""
+      },
+      {
+        "id": "id_iifl1bndtmwa4ynsl",
+        "title": "第二十篇　生命的長大（十）",
+        "read": false,
+        "readAt": null,
+        "note": ""
+      },
+      {
+        "id": "id_mqeh04sgrmwa4ynsl",
+        "title": "第二十一篇　生命的經歷（十一）",
+        "read": false,
+        "readAt": null,
+        "note": ""
+      },
+      {
+        "id": "id_wwqgigfzqmwa4ynsl",
+        "title": "第二十二篇　生命的長大（十一）",
+        "read": false,
+        "readAt": null,
+        "note": ""
+      },
+      {
+        "id": "id_vcg1xvn8bmwa4ynsl",
+        "title": "第二十三篇　生命的經歷（十二）",
+        "read": false,
+        "readAt": null,
+        "note": ""
+      },
+      {
+        "id": "id_pw56k0b8rmwa4ynsl",
+        "title": "第二十四篇　生命的長大（十二）",
+        "read": false,
+        "readAt": null,
+        "note": ""
+      },
+      {
+        "id": "id_4frzwgzoamwa4ynsl",
+        "title": "第二十五篇　生命的經歷（十三）",
+        "read": false,
+        "readAt": null,
+        "note": ""
+      },
+      {
+        "id": "id_lli1fiop9mwa4ynsl",
+        "title": "第二十六篇　生命的經歷（十四）",
+        "read": false,
+        "readAt": null,
+        "note": ""
+      },
+      {
+        "id": "id_q7lv4df65mwa4ynsl",
+        "title": "第二十七篇　生命的長大（十三）",
+        "read": false,
+        "readAt": null,
+        "note": ""
+      },
+      {
+        "id": "id_bm3afo5zmmwa4ynsl",
+        "title": "第二十八篇　生命的經歷（十五）",
+        "read": false,
+        "readAt": null,
+        "note": ""
+      },
+      {
+        "id": "id_z3mmajijqmwa4ynsl",
+        "title": "第二十九篇　生命的長大（十四）",
+        "read": false,
+        "readAt": null,
+        "note": ""
+      },
+      {
+        "id": "id_5nr9j97etmwa4ynsl",
+        "title": "第三十篇　生命的經歷（十六）",
+        "read": false,
+        "readAt": null,
+        "note": ""
+      },
+      {
+        "id": "id_8za7dl255mwa4ynsl",
+        "title": "第三十一篇　生命的長大（十五）",
+        "read": false,
+        "readAt": null,
+        "note": ""
+      }
+    ],
+    "readingSessions": [],
+    "updatedAt": "2026-11-10T03:34:02.229Z"
   },
   {
     "title": "主工人的性格",
