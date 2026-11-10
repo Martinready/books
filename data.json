@@ -28,8 +28,8 @@
       {
         "id": "id_n1jupbyu6mvxfg2wd",
         "title": "第一篇　召會的產生",
-        "read": false,
-        "readAt": null,
+        "read": true,
+        "readAt": "2026-11-10T03:35:14.912Z",
         "note": ""
       },
       {
@@ -161,7 +161,7 @@
     ],
     "readingSessions": [],
     "createdAt": "2026-11-01T06:06:09.609Z",
-    "updatedAt": "2026-11-01T06:06:37.404Z"
+    "updatedAt": "2026-11-10T03:35:14.912Z"
   },
   {
     "id": "id_tpuhgpdo0mvg5ndnh",
