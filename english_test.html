@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>English Practice 英文練習</title>
+<style>
+:root{--bg:#f6f7fb;--card:#fff;--tx:#1d2433;--sub:#6b7488;--pri:#4f46e5;--ok:#16a34a;--bad:#dc2626;--bd:#e3e6ef;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12141c;--card:#1c2030;--tx:#eceef6;--sub:#9aa3ba;--pri:#818cf8;--ok:#4ade80;--bad:#f87171;--bd:#2d3348;color-scheme:dark}}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:system-ui,-apple-system,"Noto Sans TC",sans-serif;line-height:1.5}
+#app{max-width:520px;margin:0 auto;padding:16px}
+h1{font-size:22px;margin:8px 0 4px}h2{font-size:18px;margin:0 0 8px}
+.sub{color:var(--sub);font-size:14px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:18px;margin:12px 0}
+.row{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}.ticks{display:flex;justify-content:space-between;font-size:12px;color:var(--sub)}input[type=range]{width:100%;accent-color:var(--pri);height:32px}
+.chip{flex:1;padding:10px;border-radius:12px;border:1px solid var(--bd);background:var(--card);color:var(--tx);font-size:16px;font-weight:600}
+.chip.on{background:var(--pri);color:#fff;border-color:var(--pri)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.mode{padding:16px 10px;border-radius:16px;border:1px solid var(--bd);background:var(--card);color:var(--tx);font-size:16px;text-align:center}
+.mode b{display:block;font-size:28px}.mode small{color:var(--sub)}
+button{font:inherit;cursor:pointer}
+.btn{width:100%;padding:13px;border-radius:12px;border:0;background:var(--pri);color:#fff;font-size:16px;font-weight:600;margin-top:10px}
+.btn.alt{background:transparent;color:var(--pri);border:1px solid var(--pri)}
+.big{font-size:30px;font-weight:700;text-align:center;margin:18px 0 6px}
+.mid{font-size:20px;text-align:center;margin:12px 0}
+.bar{height:6px;background:var(--bd);border-radius:3px;overflow:hidden;margin:8px 0}.bar i{display:block;height:100%;background:var(--pri)}
+.words{display:flex;flex-wrap:wrap;gap:8px;min-height:48px;margin:10px 0}
+.w{padding:9px 13px;border-radius:10px;border:1px solid var(--bd);background:var(--card);color:var(--tx);font-size:17px}
+.ans{min-height:56px;border-bottom:2px dashed var(--bd);padding-bottom:6px}
+.opt{display:block;width:100%;text-align:left;padding:13px;margin-top:8px;border-radius:12px;border:1px solid var(--bd);background:var(--card);color:var(--tx);font-size:16px}
+.ok{border-color:var(--ok)!important;background:color-mix(in srgb,var(--ok) 18%,var(--card))}
+.bad{border-color:var(--bad)!important;background:color-mix(in srgb,var(--bad) 18%,var(--card))}
+.say{width:84px;height:84px;border-radius:50%;border:0;background:var(--pri);color:#fff;font-size:32px;display:block;margin:14px auto}
+.say.rec{background:var(--bad)}
+.back{background:none;border:0;color:var(--pri);font-size:15px;padding:4px 0}
+.fb{text-align:center;font-weight:600;min-height:26px;margin-top:6px}
+.spk{background:none;border:1px solid var(--bd);color:var(--tx);border-radius:50%;width:44px;height:44px;font-size:20px;display:block;margin:0 auto}
+textarea,#q,select{width:100%;font:inherit;padding:10px;border-radius:10px;border:1px solid var(--bd);background:var(--bg);color:var(--tx);margin:6px 0}textarea{min-height:110px}select{width:auto;margin:0}.row2{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 0;border-top:1px solid var(--bd)}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+var D={
+A1:{w:[["apple","蘋果"],["water","水"],["friend","朋友"],["book","書"],["happy","快樂的"],["eat","吃"],["house","房子"],["morning","早晨"],["milk","牛奶"],["bread","麵包"],["teacher","老師"],["car","車子"],["sleep","睡覺"],["red","紅色的"],["dog","狗"],["family","家人"]],
+r:[["How are you?","I’m fine, thank you.",["I am a student.","It is seven o’clock.","Yes, here you are."],"你好嗎？"],["What is your name?","My name is Ken.",["I like coffee.","It is on the table.","I am fine."],"你叫什麼名字？"],["Where is the station?","It is next to the bank.",["I am from Taiwan.","At seven o’clock.","Yes, I do."],"車站在哪裡？"],["Do you like coffee?","Yes, I do.",["It is Monday.","I am twenty.","Here you are."],"你喜歡咖啡嗎？"],["Thank you.","You are welcome.",["I am fine.","It is red.","Yes, please."],"謝謝你。"],["Can I help you?","Yes, I want a coffee.",["I am ten years old.","It is a dog.","No, he is not."],"需要幫忙嗎？"]],d:{t:"咖啡店點餐",x:[["Hello! What would you like?","A coffee, please.",["I am fine.","It is seven.","Yes, he is."],"你好！想點什麼？"],["Hot or cold?","Hot, please.",["Yes, I do.","At the station.","I am a student."],"熱的還冷的？"],["That is three dollars.","Here you are.",["I like it.","It is a dog.","Good morning."],"一共三美元。"],["Have a nice day!","Thank you. You too!",["I am twenty.","It is red.","No, thanks."],"祝你有美好的一天！"]]},s:[["I like coffee.","我喜歡咖啡。","I’m really into coffee."],["She is my friend.","她是我的朋友。","She’s a good friend of mine."],["Where is the station?","車站在哪裡？","Where’s the station?"],["I eat breakfast at seven.","我七點吃早餐。","I usually grab breakfast around seven."],["Thank you very much.","非常謝謝你。","Thanks a lot."],["I have a dog.","我有一隻狗。","I’ve got a dog."],["What time is it?","現在幾點？","What time is it now?"],["He drinks milk every day.","他每天喝牛奶。","He has milk every day."],["My teacher is very kind.","我的老師很親切。","My teacher’s really nice."],["Can I have some water?","我可以喝點水嗎？","Can I get some water?"],["We go to school by bus.","我們搭公車上學。","We take the bus to school."]]},
+A2:{w:[["borrow","借入"],["appointment","預約"],["comfortable","舒適的"],["delay","延誤"],["recommend","推薦"],["receipt","收據"],["crowded","擁擠的"],["weekend","週末"],["invite","邀請"],["reserve","預訂"],["luggage","行李"],["discount","折扣"],["neighbor","鄰居"],["complain","抱怨"],["direction","方向"],["exhausted","筋疲力盡的"]],
+r:[["Would you like some tea?","Yes, please. That sounds nice.",["I went there yesterday.","It takes ten minutes.","No, he does not."],"你想喝茶嗎？"],["How was your weekend?","It was great. I went hiking.",["I will go next Friday.","It is two dollars.","She is my sister."],"你週末過得如何？"],["Could you tell me the time?","Sure. It is half past three.",["Yes, I was late.","I do not like it.","About three dollars."],"可以告訴我現在幾點嗎？"],["What do you do?","I work in a bank.",["I do it tomorrow.","Fine, thanks.","On the second floor."],"你從事什麼工作？"],["Excuse me, is this seat taken?","No, go ahead.",["I took the bus.","It is my seat number.","Yes, I am taken."],"請問這位子有人坐嗎？"],["Sorry I am late.","No problem. We just started.",["Yes, I am late too.","It is on time.","I am sorry for you."],"抱歉我遲到了。"]],d:{t:"旅館入住",x:[["Good evening. How can I help you?","I have a reservation under Lin.",["I went there last year.","It was very crowded.","I usually sleep late."],"晚安，有什麼能幫您？"],["Let me check. How many nights?","Two nights, please.",["Two dollars, please.","I am exhausted.","It is next to the bank."],"我查一下，住幾晚？"],["Breakfast is from seven to ten.","Great. Where is the dining room?",["I do not like it.","Yes, I was late.","It takes ten minutes."],"早餐是七點到十點。"],["Here is your key. Enjoy your stay.","Thanks. Could I have a wake-up call?",["You are welcome, he said.","I stayed yesterday.","The key is red."],"這是您的鑰匙，祝住宿愉快。"]]},s:[["Could you help me, please?","可以請你幫我嗎？","Can you give me a hand?"],["I would like to book a table.","我想訂一張桌子。","I’d like to get a table, please."],["The train was delayed by ten minutes.","火車延誤了十分鐘。","The train was running ten minutes late."],["What do you recommend?","你推薦什麼？","What would you recommend?"],["I usually go jogging on weekends.","我週末通常去慢跑。","I usually go for a jog on weekends."],["Do you have any rooms available tonight?","你們今晚有空房嗎？","Got any rooms available tonight?"],["I lost my bag at the airport.","我在機場弄丟了行李。","I lost my bag at the airport."],["Is there a discount for students?","學生有折扣嗎？","Do you guys do student discounts?"],["I am exhausted after a long day.","忙了一整天我筋疲力盡。","I’m totally wiped out after today."],["Let me know when you arrive.","到了再告訴我。","Just let me know when you get there."],["She invited me to her birthday party.","她邀請我參加她的生日派對。","She asked me to come to her birthday party."]]},
+B1:{w:[["improve","改善"],["schedule","行程；安排"],["experience","經驗"],["opportunity","機會"],["suggest","建議"],["available","有空的；可用的"],["persuade","說服"],["requirement","要求；條件"],["negotiate","協商"],["responsible","負責的"],["recover","恢復"],["emphasize","強調"],["reliable","可靠的"],["increase","增加"],["achieve","達成"],["compare","比較"]],
+r:[["Do you mind if I open the window?","Not at all. Go ahead.",["Yes, I opened it yesterday.","The window is very big.","I am afraid I cannot find it."],"你介意我開窗嗎？"],["I think we should leave early.","Good idea. Traffic might be heavy.",["I left it at home.","Yes, it was early.","He is leaving soon."],"我覺得我們該早點出發。"],["Would you mind helping me with this?","Of course. What do you need?",["Yes, I mind it.","I helped him yesterday.","It is in the kitchen."],"可以幫我一下嗎？"],["How long have you lived here?","For about five years.",["I live in Taipei.","It is a quiet area.","Next month."],"你住在這裡多久了？"],["I am thinking about changing my job.","Really? What made you decide that?",["Yes, the job is changed.","I thought about it too.","Changing is a good job."],"我在考慮換工作。"],["What do you think of the new plan?","It looks good, but the schedule is tight.",["I think it is raining.","The plan is on the table.","He thinks about me."],"你覺得新計畫怎麼樣？"]],d:{t:"工作面試",x:[["Thanks for coming. Tell me about yourself.","Sure. I have five years of experience in marketing.",["I came by bus this morning.","Yes, I am very tired.","It is my first time here."],"謝謝你來，請自我介紹。"],["Why do you want to join our company?","I am looking for new challenges and your team looks great.",["Because it is raining outside.","I joined a gym last year.","My company is far from here."],"你為什麼想加入我們公司？"],["What is your biggest weakness?","I sometimes take on too much work, but I am learning to manage my time.",["I weigh about sixty kilos.","My weakness is on Monday.","I do not have any shoes."],"你最大的缺點是什麼？"],["Do you have any questions for us?","Yes. What would my daily tasks look like?",["No, I did not eat it.","I have two brothers.","It looks like rain."],"你有什麼問題想問我們嗎？"]]},s:[["I have been learning English for two years.","我學英文已經兩年了。","I’ve been studying English for a couple of years."],["If I had more time, I would travel more.","如果我有更多時間，我會多旅行。","If I had more time, I’d travel a lot more."],["Could you tell me how to get to the airport?","你能告訴我怎麼去機場嗎？","Can you tell me how to get to the airport?"],["I look forward to meeting you.","我期待與你見面。","I’m looking forward to meeting you."],["She suggested that we leave early.","她建議我們早點離開。","She said we should head out early."],["I wish I had studied harder in school.","我真希望以前在學校更用功。","I wish I’d studied harder back in school."],["The meeting has been postponed until Friday.","會議已延到週五。","They’ve pushed the meeting back to Friday."],["She is responsible for managing the project.","她負責管理這個專案。","She’s in charge of running the project."],["Despite the rain, we enjoyed the trip.","儘管下雨，我們還是很享受這趧旅行。","It rained, but we still had a great trip."],["I would rather stay home than go out tonight.","我今晚寧願待在家也不想出去。","I’d honestly rather stay in tonight."],["He apologized for being late to the interview.","他為面試遲到道歉。","He said sorry for showing up late to the interview."]]}
+};
+var MODES=[["vocab","📖","單字","翻卡記憶"],["sent","🧩","句子","排列語序"],["listen","🎧","聽力","聽音選句"],["speak","🎤","口說","跟著唸"],["lzh","🌏","聽選中文","聽英文選意思"],["resp","💬","選回應","聽一句選回答"]];
+var lv="A1",df=3,S={};
+var P={};try{P=JSON.parse(localStorage.getItem("ep")||"{}")}catch(e){}
+function save(){try{localStorage.setItem("ep",JSON.stringify(P))}catch(e){}}
+function shuf(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t}return a}
+function say(t,cb){try{speechSynthesis.cancel();var u=new SpeechSynthesisUtterance(t);if(cb)u.onend=cb;u.lang="en-US";u.rate=[.6,.75,.9,1,1.15][df-1];speechSynthesis.speak(u)}catch(e){}}
+var $=document.getElementById("app");
+var LV=["A1","A2","B1"],LN=["入門","基礎","中級"],DD=["慢速、字字清楚","稍慢、標準發音","正常語速、標準說法","接近母語者語速，口語說法","母語者快速，道地口語縮略"];
+function sents(){return D[lv].s.map(function(x){return [df>=4&&x[2]?x[2]:x[0],x[1]]})}
+function setLv(v){lv=LV[v];document.getElementById("l1").textContent=lv+" "+LN[v]}
+function setDf(v){df=+v;document.getElementById("l2").textContent=df+" / 5";document.getElementById("l3").textContent=DD[df-1]}
+function esc(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;")}
+function norm(s){return s.toLowerCase().replace(/[^a-z\s]/g,"").split(/\s+/).filter(Boolean)}
+
+function home(){clearInterval(S.iv);if(CP.bk){df=CP.bk;CP.bk=0}
+ var h='<h1>English Practice</h1><div class="sub">成人英文練習 · 單字 / 句子 / 聽 / 說</div><div class="card"><div class="row"><b>英文程度</b><span id="l1">'+lv+' '+LN[LV.indexOf(lv)]+'</span></div><input type="range" min="0" max="2" step="1" value="'+LV.indexOf(lv)+'" oninput="setLv(this.value)" onchange="home()"><div class="ticks"><span>A1</span><span>A2</span><span>B1</span></div><div class="row" style="margin-top:16px"><b>難易度</b><span id="l2">'+df+' / 5</span></div><input type="range" min="1" max="5" step="1" value="'+df+'" oninput="setDf(this.value)" onchange="home()"><div class="ticks"><span>慢速教學</span><span>母語者</span></div><div class="sub" id="l3">'+DD[df-1]+'</div></div>';
+ 
+ h+='<button class="btn" onclick="campMap()">🗺 闖關模式</button><div class="grid">';
+ MODES.forEach(function(m){var b=(P[lv+"d"+df]||{})[m[0]];h+='<button class="mode" onclick="start(\''+m[0]+'\')"><b>'+m[1]+'</b>'+m[2]+'<br><small>'+m[3]+'</small><br><small>'+(b!=null?'最佳 '+b+'%':'尚未練習')+'</small></button>'});
+ h+='</div><button class="btn alt" onclick="bankPage()">📚 我的題庫（'+bank.length+'）</button><div class="card sub">難易度 1–3：標準教學說法，語速由慢到正常。難易度 4–5：句子改為母語者日常口語（縮略、慣用說法），語速接近或達到母語者。分數依「程度＋難易度」分開記錄。</div>';
+ $.innerHTML=h;
+}
+function start(m){S={m:m,i:0,ok:0,items:shuf(m=="vocab"?D[lv].w:m=="resp"?D[lv].r:sents()).slice(0,8)};show()}
+function hdr(){var n=S.items.length;return '<button class="back" onclick="home()">‹ 返回</button><div class="sub">'+lv+' · '+(S.m=="camp"?"第 "+S.st+" 關":MODES.filter(function(x){return x[0]==S.m})[0][2])+' · '+(S.i+1)+'/'+n+'</div><div class="bar"><i style="width:'+(S.i/n*100)+'%"></i></div>'}
+function next(){S.i++;S.i>=S.items.length?end():show()}
+function end(){if(S.m=="camp")return campEnd();
+ var p=Math.round(S.ok/S.items.length*100);var k=lv+"d"+df;P[k]=P[k]||{};if((P[k][S.m]||0)<p)P[k][S.m]=p;save();
+ $.innerHTML='<button class="back" onclick="home()">‹ 返回</button><div class="card"><h2>完成！</h2><div class="big">'+p+'%</div><div class="mid sub">答對／記得 '+S.ok+' / '+S.items.length+'</div><button class="btn" onclick="start(\''+S.m+'\')">再練一次</button><button class="btn alt" onclick="home()">回首頁</button></div>';
+}
+function show(){({vocab:vocab,sent:sent,listen:function(){quiz("e")},speak:speak,lzh:function(){quiz("z")},resp:function(){quiz("r")}})[S.m=="camp"?S.ks[S.i]:S.m]()}
+
+function vocab(){
+ var it=S.items[S.i];
+ $.innerHTML=hdr()+'<div class="card"><div class="big">'+it[0]+'</div><button class="spk" onclick="say(\''+it[0]+'\')">🔊</button><div class="mid" id="zh" style="min-height:36px"></div><button class="btn alt" id="fl" onclick="flip()">顯示中文</button><div id="jg"></div></div>';
+ say(it[0]);
+}
+function flip(){var it=S.items[S.i];document.getElementById("zh").textContent=it[1];document.getElementById("fl").style.display="none";
+ document.getElementById("jg").innerHTML='<div class="grid"><button class="btn alt" onclick="next()">不熟</button><button class="btn" onclick="S.ok++;next()">記得</button></div>'}
+
+function sent(){
+ var it=S.items[S.i];S.ws=shuf(it[0].replace(/[.?!,]/g,function(c){return ""}).split(" ").map(function(w,i){return w}));S.pick=[];S.done=false;drawSent();
+}
+function drawSent(){
+ var it=S.items[S.i],used=S.pick.slice(),h=hdr()+'<div class="card"><div class="mid">'+it[1]+'</div><div class="words ans">';
+ S.pick.forEach(function(w,i){h+='<button class="w" onclick="unpick('+i+')">'+esc(w)+'</button>'});
+ h+='</div><div class="words">';
+ var rem=S.ws.slice();S.pick.forEach(function(w){var k=rem.indexOf(w);if(k>-1)rem.splice(k,1)});
+ rem.forEach(function(w){h+='<button class="w" onclick="pick(\''+w.replace(/'/g,"\\'")+'\')">'+esc(w)+'</button>'});
+ h+='</div><div class="fb" id="fb"></div><div id="nx"></div></div>';$.innerHTML=h;
+ if(!rem.length&&!S.done){S.done=true;var ok=norm(S.pick.join(" ")).join(" ")==norm(it[0]).join(" ");
+  document.getElementById("fb").innerHTML=ok?'<span style="color:var(--ok)">✔ 正確！</span>':'<span style="color:var(--bad)">✘ 正解：'+esc(it[0])+'</span>';
+  if(ok)S.ok++;say(it[0]);document.getElementById("nx").innerHTML='<button class="btn" onclick="next()">下一題</button>';
+  document.querySelectorAll(".ans .w").forEach(function(b){b.disabled=true})}
+}
+function pick(w){if(S.done)return;S.pick.push(w);drawSent()}
+function unpick(i){if(S.done)return;S.pick.splice(i,1);drawSent()}
+
+function listenOld(){
+ var it=S.items[S.i],o=[it[0]],pool=shuf(sents().map(function(x){return x[0]}).filter(function(x){return x!=it[0]}));
+ o=shuf(o.concat(pool.slice(0,2)));S.ans=it[0];S.lock=false;
+ var h=hdr()+'<div class="card"><div class="mid sub">按下播放，選出你聽到的句子</div><button class="say" onclick="say(S.ans)">▶</button>';
+ o.forEach(function(t,i){h+='<button class="opt" onclick="chooseL(this,'+i+')" data-t="'+t.replace(/"/g,"&quot;")+'">'+esc(t)+'</button>'});
+ h+='<div id="nx"></div></div>';$.innerHTML=h;setTimeout(function(){say(S.ans)},300);
+}
+function chooseOld(b){if(S.lock)return;S.lock=true;var t=b.getAttribute("data-t");
+ if(t==S.ans){b.classList.add("ok");S.ok++}else{b.classList.add("bad");document.querySelectorAll(".opt").forEach(function(x){if(x.getAttribute("data-t")==S.ans)x.classList.add("ok")})}
+ document.getElementById("nx").innerHTML='<div class="mid sub">'+(S.m=="lzh"?S.items[S.i][0]:S.items[S.i][1])+'</div><button class="btn" onclick="next()">下一題</button>'}
+
+var SET=[0,{n:3,t:0,r:9},{n:3,t:0,r:9},{n:3,t:20,r:3},{n:4,t:12,r:2},{n:5,t:8,r:1}],QID=0;
+function opts(c,all,n){var T=function(s){var w=norm(s);return w.length?w:s.split("")},a=T(c),sc=function(x){var b=T(x),k=0;a.forEach(function(w){if(b.indexOf(w)>-1)k++});return k/(a.length+b.length-k||1)},p=shuf(all.filter(function(x){return x!=c}));if(df<=2)p.sort(function(x,y){return sc(x)-sc(y)});else if(df>=4)p.sort(function(x,y){return sc(y)-sc(x)});return shuf([c].concat(p.slice(0,n-1)))}
+function quiz(k){
+ var it=S.items[S.i],c=SET[df],pool,cor,ttl;QID++;
+ S.audio=it[0];S.plays=0;S.lock=false;S.shown=false;
+ if(k=="e"){cor=it[0];pool=sents().map(function(x){return x[0]});S.rev=it[1];ttl="選出你聽到的句子"}
+ else if(k=="z"){cor=it[1];pool=sents().map(function(x){return x[1]});S.rev=it[0];ttl="選出正確的中文意思"}
+ else{cor=it[1];pool=it[2];S.rev=it[0]+"（"+it[3]+"）";ttl="選出最合適的回應"}
+ S.ans=cor;S.o=opts(cor,pool,k=="r"?Math.min(c.n,4):c.n);
+ $.innerHTML=hdr()+'<div class="card"><div class="mid sub">'+ttl+'</div><div id="tm"></div><button class="say" id="pl" onclick="play()">▶</button><div class="fb" id="pc"></div><div id="ops"></div><div id="nx"></div></div>';
+ if(df<5)showOpts();else document.getElementById("pc").textContent="聽完才會出現選項";
+ setTimeout(play,300);
+}
+function play(){var c=SET[df],b=document.getElementById("pl");if(!b||S.lock||S.plays>=c.r)return;S.plays++;var q=QID,left=c.r-S.plays,pc=document.getElementById("pc");
+ if(c.r<9&&(df<5||S.shown))pc.textContent=left>0?"還可重播 "+left+" 次":"無法再重播";
+ if(left<=0)b.style.opacity=.4;
+ say(S.audio,(df>=5&&!S.shown)?function(){if(q==QID)showOpts()}:null);
+ if(df>=5&&!S.shown)setTimeout(function(){if(q==QID)showOpts()},8000)}
+function showOpts(){if(S.shown||S.lock)return;S.shown=true;var h="";
+ S.o.forEach(function(t){h+='<button class="opt" onclick="choose(this)" data-t="'+t.replace(/"/g,"&quot;")+'">'+esc(t)+'</button>'});
+ document.getElementById("ops").innerHTML=h;var c=SET[df],left=c.r-S.plays,pc=document.getElementById("pc");
+ pc.textContent=c.r<9?(left>0?"還可重播 "+left+" 次":"無法再重播"):"";startTimer()}
+function startTimer(){var t=SET[df].t;if(!t)return;var s=t;document.getElementById("tm").innerHTML='<div class="bar"><i id="tb" style="width:100%;transition:width 1s linear"></i></div>';
+ clearInterval(S.iv);S.iv=setInterval(function(){s--;var b=document.getElementById("tb");if(b)b.style.width=(s/t*100)+"%";if(s<=0){clearInterval(S.iv);tmo()}},1000)}
+function mark(){document.querySelectorAll(".opt").forEach(function(x){if(x.getAttribute("data-t")==S.ans)x.classList.add("ok")})}
+function choose(b){if(S.lock)return;S.lock=true;clearInterval(S.iv);
+ if(b.getAttribute("data-t")==S.ans){b.classList.add("ok");S.ok++}else{b.classList.add("bad");mark()}fin()}
+function tmo(){if(S.lock)return;S.lock=true;mark();document.getElementById("pc").textContent="⏱ 時間到";fin()}
+function fin(){document.getElementById("nx").innerHTML='<div class="mid sub">'+esc(S.rev)+'</div><button class="btn" onclick="next()">下一題</button>'}
+function lzhOld(){
+ var it=S.items[S.i],pool=shuf(sents().map(function(x){return x[1]}).filter(function(x){return x!=it[1]})),o=shuf([it[1]].concat(pool.slice(0,2)));
+ S.ans=it[1];S.en=it[0];S.lock=false;
+ var h=hdr()+'<div class="card"><div class="mid sub">按下播放，選出正確的中文意思</div><button class="say" onclick="say(S.en)">▶</button>';
+ o.forEach(function(t){h+='<button class="opt" onclick="chooseL(this)" data-t="'+t.replace(/"/g,"&quot;")+'">'+esc(t)+'</button>'});
+ h+='<div id="nx"></div></div>';$.innerHTML=h;setTimeout(function(){say(S.en)},300);
+}
+function speak(){
+ var it=S.items[S.i];S.rec=null;
+ $.innerHTML=hdr()+'<div class="card"><div class="mid" style="font-weight:700;font-size:22px">'+esc(it[0])+'</div><div class="mid sub" style="font-size:15px">'+it[1]+'</div><button class="spk" onclick="say(\''+it[0].replace(/'/g,"\\'")+'\')">🔊</button><button class="say" id="mic" onclick="listenMic()">🎤</button><div class="fb" id="fb">按麥克風開始唸</div><div id="nx"><button class="btn alt" onclick="next()">跳過</button></div></div>';
+}
+function listenMic(){
+ var SR=window.SpeechRecognition||window.webkitSpeechRecognition,fb=document.getElementById("fb");
+ if(!SR){fb.textContent="此瀏覽器不支援語音辨識，請改用 Chrome 或 Safari";return}
+ var r=new SR(),mic=document.getElementById("mic"),it=S.items[S.i];r.lang="en-US";r.interimResults=false;
+ mic.classList.add("rec");fb.textContent="聆聽中…";
+ r.onresult=function(e){var said=norm(e.results[0][0].transcript),tgt=norm(it[0]),hit=0;
+  tgt.forEach(function(w){if(said.indexOf(w)>-1)hit++});var sc=Math.round(hit/tgt.length*100);
+  fb.innerHTML='你說：'+esc(said.join(" "))+'<br><span style="color:var(--'+(sc>=70?'ok':'bad')+')">相符度 '+sc+'%'+(sc>=70?' ✔':' 再試一次')+'</span>';
+  if(sc>=70){S.ok++;document.getElementById("nx").innerHTML='<button class="btn" onclick="next()">下一題</button>'}};
+ r.onerror=function(e){fb.textContent="無法辨識（"+e.error+"），請檢查麥克風權限"};
+ r.onend=function(){mic.classList.remove("rec")};
+ try{r.start()}catch(e){fb.textContent="無法啟動麥克風"}
+}
+var BASE=JSON.stringify(D),BK=[],K={};
+(function(){var d=JSON.parse(BASE);for(var l in d)d[l].w.concat(d[l].s).forEach(function(x){BK.push(x[0].toLowerCase())})})();
+"i you he she it we they a an the is am are was were be been do does did have has had go goes like want eat drink see look come take make get know think say tell help need love good bad big small new old happy name friend water food book house home school work day time year man woman people one two three four five six seven eight nine ten yes no not and or but in on at to from with for of my your his her our me him us them where what who when how why this that here there please thank thanks very much many some morning night today coffee tea breakfast station bank table open".split(" ").forEach(function(w){K[w]=1});
+"could would should can will must borrow appointment comfortable delay delayed recommend receipt crowded weekend usually yesterday tomorrow travel hotel ticket airport train jog jogging hiking price cheap expensive before after because often sometimes always never about around between during minutes hour late early traffic".split(" ").forEach(function(w){K[w]=2});
+var bank=[];try{bank=JSON.parse(localStorage.getItem("epb")||"[]")}catch(e){}
+function persist(){try{localStorage.setItem("epb",JSON.stringify(bank))}catch(e){}}
+function rebuild(){D=JSON.parse(BASE);bank.forEach(function(b){var L=D[b.lv];if(L)(b.t=="w"?L.w:L.s).push([b.en,b.zh])})}
+function wl(w){return K[w]||(w.length<=5?2:3)}
+function grade(en){var w=norm(en);if(w.length==1)return wl(w[0]);var g=w.length*.4;w.forEach(function(x){var k=wl(x);if(k==2)g+=.5;if(k==3)g+=2});
+ if(/\b(if|would|been|had|which|although|whose)\b/i.test(en))g+=2;if(/\b(was|were|is|are)\s+\w+ed\b/i.test(en))g+=1.5;if(/\b(have|has)\s+\w+/i.test(en))g+=1;
+ return g<=4.5?1:g<=8?2:3}
+function addBatch(){var n=0,dup=0,bad=0,c=[0,0,0,0];
+ document.getElementById("ba").value.split("\n").forEach(function(l){l=l.trim();if(!l)return;var p=l.split(/[|\t]/),en=(p[0]||"").trim(),zh=(p[1]||"").trim();
+  if(!en||!zh||!norm(en).length){bad++;return}
+  var key=en.toLowerCase();if(BK.indexOf(key)>-1||bank.some(function(b){return b.en.toLowerCase()==key})){dup++;return}
+  var g=grade(en),t=norm(en).length<=2&&!/[.?!]/.test(en)?"w":"s";bank.push({t:t,en:en,zh:zh,lv:LV[g-1],auto:1});n++;c[g]++});
+ persist();rebuild();bankPage("新增 "+n+" 筆（A1 "+c[1]+"、A2 "+c[2]+"、B1 "+c[3]+"）"+(dup?"；重複 "+dup:"")+(bad?"；格式錯誤 "+bad+"（需「英文 | 中文」）":""))}
+function bankPage(msg){clearInterval(S.iv);
+ $.innerHTML='<button class="back" onclick="home()">‹ 返回</button><h1>我的題庫</h1><div class="sub">共 '+bank.length+' 筆。每行一筆，格式：英文 | 中文</div><div class="card"><textarea id="ba" placeholder="apple | 蘋果&#10;I like coffee. | 我喜歡咖啡。"></textarea><button class="btn" onclick="addBatch()">新增並自動分級</button><div class="fb">'+(msg||"")+'</div><div class="sub">1–2 個字視為「單字」，其餘視為「句子」。等級最高到 B1。</div></div><div class="card"><div class="row"><b>瀏覽</b><select id="fl" onchange="listBank()"><option value="">全部</option><option>A1</option><option>A2</option><option>B1</option></select></div><input id="q" placeholder="搜尋" oninput="listBank()"><div id="bl"></div></div><div class="card"><b>備份</b><textarea id="io" placeholder="匯出後複製保存；匯入時貼在這裡"></textarea><div class="grid"><button class="btn alt" onclick="exp()">匯出</button><button class="btn alt" onclick="imp()">匯入</button></div></div>';listBank()}
+function listBank(){var f=document.getElementById("fl").value,q=document.getElementById("q").value.toLowerCase(),h="",n=0;
+ bank.forEach(function(b,i){if(f&&b.lv!=f)return;if(q&&(b.en+b.zh).toLowerCase().indexOf(q)<0)return;if(n++>=40)return;
+  var o=LV.map(function(l){return '<option'+(l==b.lv?' selected':'')+'>'+l+'</option>'}).join("");
+  h+='<div class="row2"><div>'+(b.t=="w"?"📖 ":"🧩 ")+'<b>'+esc(b.en)+'</b><div class="sub">'+esc(b.zh)+'</div></div><div style="white-space:nowrap"><select onchange="setBl('+i+',this.value)">'+o+'</select> <button class="w" onclick="delB('+i+')">✕</button></div></div>'});
+ document.getElementById("bl").innerHTML=h||'<div class="sub">沒有符合的題目</div>'+(n>40?'':'')}
+function setBl(i,v){bank[i].lv=v;bank[i].auto=0;persist();rebuild()}
+function delB(i){bank.splice(i,1);persist();rebuild();listBank()}
+function exp(){document.getElementById("io").value=JSON.stringify(bank)}
+function imp(){try{var a=JSON.parse(document.getElementById("io").value),n=0;if(!Array.isArray(a))throw 0;
+ a.forEach(function(b){if(b&&typeof b.en=="string"&&typeof b.zh=="string"&&LV.indexOf(b.lv)>-1&&(b.t=="w"||b.t=="s")&&BK.indexOf(b.en.toLowerCase())<0&&!bank.some(function(x){return x.en.toLowerCase()==b.en.toLowerCase()})){bank.push({t:b.t,en:b.en,zh:b.zh,lv:b.lv,auto:b.auto?1:0});n++}});
+ persist();rebuild();bankPage("匯入 "+n+" 筆")}catch(e){bankPage("匯入失敗：格式不正確")}}var CP={};
+function campMap(){clearInterval(S.iv);CP.bk=CP.bk||df;var C=P.camp||{},nm=["慢速暖身","稍慢練習","限時挑戰","母語者口語","綜合對話："+D[lv].d.t],
+ h='<button class="back" onclick="home()">‹ 返回</button><h1>闖關</h1><div style="display:flex;gap:8px;margin:8px 0">';
+ LV.forEach(function(l,i){h+='<button class="chip'+(l==lv?' on':'')+'" onclick="lv=\''+l+'\';campMap()">'+l+' '+LN[i]+'</button>'});
+ h+='</div><div class="sub">每關約 8 題，60% 以上過關；越後面越接近母語者。過關才能解鎖下一關。</div>';
+ for(var s=1;s<=5;s++){var st=C[lv+s]||0,op=s==1||(C[lv+(s-1)]||0)>0;
+  h+='<button class="mode" style="width:100%;margin:8px 0;text-align:left;'+(op?'':'opacity:.5')+'" '+(op?'onclick="campGo('+s+')"':'disabled')+'>'+(op?(s==5?'💬':'⭐'):'🔒')+' 第 '+s+' 關・'+nm[s-1]+'<span style="float:right">'+"★".repeat(st)+"☆".repeat(3-st)+'</span></button>'}
+ $.innerHTML=h}
+function campGo(s){CP.bk=CP.bk||df;df=s;var ss=shuf(sents()),it=[],ks=[];
+ if(s==5){it=D[lv].d.x.slice();ks=it.map(function(){return"resp"})}
+ else{var rs=shuf(D[lv].r),si=0,ri=0;["listen","lzh","resp","sent","listen","lzh","resp","sent"].forEach(function(k){it.push(k=="resp"?rs[ri++%rs.length]:ss[si++%ss.length]);ks.push(k)})}
+ S={m:"camp",st:s,i:0,ok:0,items:it,ks:ks};show()}
+function campEnd(){var n=S.items.length,p=Math.round(S.ok/n*100),st=p>=95?3:p>=80?2:p>=60?1:0,k=lv+S.st;
+ P.camp=P.camp||{};if((P.camp[k]||0)<st)P.camp[k]=st;save();
+ $.innerHTML='<div class="card"><h2>'+(st?"過關！":"再接再厲")+'</h2><div class="big">'+"★".repeat(st)+"☆".repeat(3-st)+'</div><div class="mid sub">答對 '+S.ok+' / '+n+'（'+p+'%）</div>'+(S.st==5&&st?'<div class="mid">🎉 完成 '+lv+' 世界！</div>':'')+(st&&S.st<5?'<button class="btn" onclick="campGo('+(S.st+1)+')">下一關</button>':'')+'<button class="btn alt" onclick="campGo('+S.st+')">重玩這關</button><button class="btn alt" onclick="campMap()">回關卡地圖</button></div>'}
+rebuild();
+home();
+</script>
+</body>
+</html>
